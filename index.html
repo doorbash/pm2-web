@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Monitor</title>
+</head>
+
+<body>
+    <script>
+        let socket = new WebSocket("ws://46.21.147.7:3030/pm2logs")
+        console.log("attempting ws connection...")
+        socket.onopen = () => {
+            console.log("ws open")
+        }
+
+        socket.onclose = event => {
+            console.log("ws close", event)
+        }
+
+        socket.onerror = event => {
+            console.log("ws error", event)
+        }
+
+        socket.onmessage = message => {
+            let data = JSON.parse(message.data)
+            // console.log(message)
+            let text = document.getElementById("logs").innerText
+            let logs = text.split("\n");
+            let numLines = logs.length;
+            if (numLines >= 30) {
+                document.getElementById("logs").innerText = logs.slice(1).join("\n")
+            }
+            document.getElementById("logs").innerText += "[" + data.app_name  + "] " + data.message + "\n"
+        }
+    </script>
+    <div id="logs">
+    </div>
+</body>
+
+</html>
