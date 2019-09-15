@@ -86,13 +86,13 @@
             // console.log(data)
             if (data.Type == "log") {
                 let div = document.getElementById("logs");
-                let text = div.innerText
-                let logs = text.split("\n");
+                let text = div.innerHTML
+                let logs = text.split("<br>");
                 let numLines = logs.length;
                 if (numLines >= 50) {
-                    div.innerText = logs.slice(1).join("\n")
+                    div.innerHTML = logs.slice(1).join("<br>")
                 }
-                div.innerText += data.Data + "\n"
+                div.innerHTML += data.Data + "<br>"
                 div.scrollTop = div.scrollHeight;
             } else if (data.Type == "stats") {
                 let stats = JSON.parse(data.Data)
