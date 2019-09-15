@@ -7,8 +7,12 @@ import (
 	"net/http"
 	"os/exec"
 
+	"github.com/goji/httpauth"
 	"github.com/gorilla/websocket"
 )
+
+const USERNAME string = "admin"
+const PASSWORD string = "1234"
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -65,18 +69,18 @@ func main() {
 		}
 	}()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./index.html")
-	})
+	})))
 
-	http.HandleFunc("/logs", func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/logs", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var conn, err = upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		clientsChan <- conn
-	})
+	})))
 
 	if err := http.ListenAndServe(":3030", nil); err != nil {
 		fmt.Println(err)
