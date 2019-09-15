@@ -40,7 +40,7 @@ func main() {
 
 	go func() {
 		var clients map[*websocket.Conn]bool = make(map[*websocket.Conn]bool)
-		var clientsRemoveList []*websocket.Conn = make([]*websocket.Conn, 0)
+		var clientsRemoveList []*websocket.Conn
 		for {
 			select {
 			case client := <-clientsChan:
@@ -53,8 +53,12 @@ func main() {
 						continue
 					}
 				}
-				for _, clientToRemove := range clientsRemoveList {
-					delete(clients, clientToRemove)
+				if len(clientsRemoveList) > 0 {
+					for _, clientToRemove := range clientsRemoveList {
+						// fmt.Println("Removing a client from the list...")
+						delete(clients, clientToRemove)
+					}
+					clientsRemoveList = nil
 				}
 			}
 
