@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"time"
 
 	"github.com/goji/httpauth"
 	"github.com/gorilla/websocket"
@@ -14,6 +15,12 @@ import (
 const USERNAME string = "admin"
 const PASSWORD string = "1234"
 
+type LogData struct {
+	Type string
+	Data string
+	Time int64
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -21,7 +28,7 @@ var upgrader = websocket.Upgrader{
 }
 
 var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
-var logsChan chan []byte = make(chan []byte)
+var logsChan chan LogData = make(chan LogData)
 
 func main() {
 	go func() {
@@ -36,9 +43,21 @@ func main() {
 			log.Fatal(err)
 		}
 		for scanner.Scan() {
-			data := scanner.Bytes()
-			// fmt.Println(string(data))
-			logsChan <- data
+			data := scanner.Text()
+			logsChan <- LogData{Type: "log", Data: data, Time: time.Now().UnixNano() / 1e6}
+		}
+	}()
+
+	go func() {
+		for {
+			cmd := exec.Command("pm2", "jlist")
+			data, err := cmd.Output()
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			logsChan <- LogData{Type: "stats", Data: string(data), Time: time.Now().UnixNano() / 1e6}
+			time.Sleep(10 * time.Second)
 		}
 	}()
 
@@ -51,7 +70,7 @@ func main() {
 				clients[client] = true
 			case data := <-logsChan:
 				for client := range clients {
-					if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
+					if err := client.WriteJSON(data); err != nil {
 						client.Close()
 						clientsRemoveList = append(clientsRemoveList, client)
 						continue
@@ -59,7 +78,6 @@ func main() {
 				}
 				if len(clientsRemoveList) > 0 {
 					for _, clientToRemove := range clientsRemoveList {
-						// fmt.Println("Removing a client from the list...")
 						delete(clients, clientToRemove)
 					}
 					clientsRemoveList = nil
