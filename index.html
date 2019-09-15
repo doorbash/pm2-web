@@ -5,12 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Monitor</title>
+    <title>Logs</title>
+    <style>
+        body {
+            background-color: #102331;
+        }
+        #logs {
+            color: #FFF;
+            font-family: sans-serif;
+            font-size: 18px;
+        }
+    </style>
 </head>
 
 <body>
     <script>
-        let socket = new WebSocket("ws://46.21.147.7:3030/pm2logs")
+        let host = window.document.location.host.replace(/:.*/, '');
+        let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':'+location.port : '') + "/logs")
         console.log("attempting ws connection...")
         socket.onopen = () => {
             console.log("ws open")
@@ -25,15 +36,13 @@
         }
 
         socket.onmessage = message => {
-            let data = JSON.parse(message.data)
-            // console.log(message)
             let text = document.getElementById("logs").innerText
             let logs = text.split("\n");
             let numLines = logs.length;
             if (numLines >= 30) {
                 document.getElementById("logs").innerText = logs.slice(1).join("\n")
             }
-            document.getElementById("logs").innerText += "[" + data.app_name  + "] " + data.message + "\n"
+            document.getElementById("logs").innerText += message.data + "\n"
         }
     </script>
     <div id="logs">
