@@ -107,7 +107,7 @@ func main() {
 			return
 		}
 		for e := logBuffer.Front(); e != nil; e = e.Next() {
-			fmt.Println(e.Value)
+			// fmt.Println(e.Value)
 			if err := client.WriteJSON(e.Value); err != nil {
 				client.Close()
 				return
