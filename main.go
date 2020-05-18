@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 
 const USERNAME string = "admin"
 const PASSWORD string = "1234"
+const LOG_BUFFER_SIZE = 20
 
 type LogData struct {
 	Type string
@@ -29,6 +31,7 @@ var upgrader = websocket.Upgrader{
 
 var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
 var logsChan chan LogData = make(chan LogData)
+var logBuffer = list.New()
 
 func main() {
 	go func() {
@@ -44,7 +47,13 @@ func main() {
 		}
 		for scanner.Scan() {
 			data := scanner.Text()
-			logsChan <- LogData{Type: "log", Data: data, Time: time.Now().UnixNano() / 1e6}
+			logData := LogData{Type: "log", Data: data, Time: time.Now().UnixNano() / 1e6}
+			for logBuffer.Len() >= LOG_BUFFER_SIZE {
+				e := logBuffer.Front()
+				logBuffer.Remove(e)
+			}
+			logBuffer.PushBack(logData)
+			logsChan <- logData
 		}
 	}()
 
@@ -92,12 +101,23 @@ func main() {
 	})))
 
 	http.Handle("/logs", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var conn, err = upgrader.Upgrade(w, r, nil)
+		var client, err = upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		clientsChan <- conn
+		for e := logBuffer.Front(); e != nil; e = e.Next() {
+			fmt.Println(e.Value)
+			if err := client.WriteJSON(e.Value); err != nil {
+				client.Close()
+				return
+			}
+		}
+		// if err := client.WriteJSON(LogData{Type: "log", Data: "------------------------------------------", Time: time.Now().UnixNano() / 1e6}); err != nil {
+		// 	client.Close()
+		// 	return
+		// }
+		clientsChan <- client
 	})))
 
 	if err := http.ListenAndServe(":3030", nil); err != nil {
