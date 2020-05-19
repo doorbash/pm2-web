@@ -1,6 +1,8 @@
 # pm2-web
 A simple web based monitor for PM2
 
+<img src="https://github.com/doorbash/pm2-web/blob/master/screenshot.png?raw=true" />
+
 ## Usage
 1) Install:
 ```
