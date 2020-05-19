@@ -32,6 +32,7 @@ var upgrader = websocket.Upgrader{
 var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
 var logsChan chan LogData = make(chan LogData)
 var logBuffer = list.New()
+var stats LogData
 
 func main() {
 	go func() {
@@ -65,7 +66,8 @@ func main() {
 				fmt.Println(err)
 				continue
 			}
-			logsChan <- LogData{Type: "stats", Data: string(data), Time: time.Now().UnixNano() / 1e6}
+			stats = LogData{Type: "stats", Data: string(data), Time: time.Now().UnixNano() / 1e6}
+			logsChan <- stats
 			time.Sleep(10 * time.Second)
 		}
 	}()
@@ -111,10 +113,12 @@ func main() {
 				return
 			}
 		}
-		// if err := client.WriteJSON(LogData{Type: "log", Data: "------------------------------------------", Time: time.Now().UnixNano() / 1e6}); err != nil {
-		// 	client.Close()
-		// 	return
-		// }
+		if stats.Type != "" {
+			if err := client.WriteJSON(stats); err != nil {
+				client.Close()
+				return
+			}
+		}
 		clientsChan <- client
 	})))
 
