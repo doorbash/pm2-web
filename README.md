@@ -17,3 +17,7 @@ A simple web based monitor for PM2
 ```
 
 3) Enter: [```http://localhost:3030/```](http://localhost:3030/) (Default user/pass is `admin/1234`. You should change them before using)
+
+## License
+
+MIT
