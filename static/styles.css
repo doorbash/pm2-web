@@ -12,6 +12,7 @@ body {
 
 #logs {
     margin-top: 10px;
+    margin-bottom: 0;
     width: 100%;
     overflow-y: auto;
     position: absolute;
@@ -19,8 +20,20 @@ body {
     bottom: 0;
 }
 
+p.log {
+    margin: 0px;
+    display: block;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
 #stats {
+    margin-top: 0;
+    margin-bottom: 0;
     overflow-y: auto;
+    display: block;
+    font-family: monospace;
+    white-space: pre-wrap;
 }
 
 table {

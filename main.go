@@ -15,7 +15,7 @@ import (
 
 const USERNAME string = "admin"
 const PASSWORD string = "1234"
-const LOG_BUFFER_SIZE = 20
+const LOG_BUFFER_SIZE = 200
 
 type LogData struct {
 	Type string

@@ -5,7 +5,17 @@ document.title = "PM2 | " + host
 function updateUI() {
     let logsDiv = document.getElementById("logs");
     logsDiv.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
-    logsDiv.scrollTop = logsDiv.scrollHeight;
+    if (!getSelectedText()) logsDiv.scrollTop = logsDiv.scrollHeight;
+}
+
+function getSelectedText() {
+    var text = "";
+    if (typeof window.getSelection != "undefined") {
+        text = window.getSelection().toString();
+    } else if (typeof document.selection != "undefined" && document.selection.type == "Text") {
+        text = document.selection.createRange().text;
+    }
+    return text;
 }
 
 socket.onopen = () => {
@@ -27,14 +37,18 @@ socket.onmessage = message => {
         let log = JSON.parse(data.Data);
         if(log.type !== "out" && log.type !== "err") return;
         let div = document.getElementById("logs");
-        let text = div.innerHTML
-        let logs = text.split("<br>");
-        let numLines = logs.length;
-        if (numLines >= 50) {
-            div.innerHTML = logs.slice(1).join("<br>")
-        }
-        div.innerHTML += "<span style=\"color: " + (log.type == "out" ? "#00bb00" : "#800000") + "\">" + log.app_name + "</span>" + " > " + log.message + "<br>"
-        div.scrollTop = div.scrollHeight;
+        let lines = div.getElementsByClassName('log')
+        var selectedText = getSelectedText();
+        if (!selectedText) while(lines.length > 999) lines[0].remove();
+        let p = document.createElement("p");
+        p.setAttribute("class", "log");
+        let span = document.createElement("span");
+        span.setAttribute("style","color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
+        span.appendChild(document.createTextNode(log.app_name));
+        p.appendChild(span);
+        p.appendChild(document.createTextNode(" > " + log.message));
+        div.appendChild(p);
+        if (!selectedText) div.scrollTop = div.scrollHeight;
     } else if (data.Type == "stats") {
         let stats = JSON.parse(data.Data)
         // console.log(stats)
@@ -72,7 +86,7 @@ socket.onmessage = message => {
             txt += "<td class=\"table_title\">" + stats[i].name + "</td>"
             txt += "<td>" + stats[i].pm_id + "</td>"
             txt += "<td>" + stats[i].pid + "</td>"
-            txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + "\">" + status + "</td>"
+            txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + ";\">" + status + "</td>"
             txt += "<td>" + stats[i].pm2_env.restart_time + "</td>"
             txt += "<td>" + uptime_txt + "</td>"
             txt += "<td>" + stats[i].monit.cpu + "%</td>"
