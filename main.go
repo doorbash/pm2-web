@@ -37,7 +37,7 @@ var stats LogData
 func main() {
 	go func() {
 		// cmd := exec.Command("ping", "-t", "google.com")
-		cmd := exec.Command("pm2", "logs")
+		cmd := exec.Command("pm2", "logs", "--json")
 		cmdReader, err := cmd.StdoutPipe()
 		if err != nil {
 			log.Fatal(err)

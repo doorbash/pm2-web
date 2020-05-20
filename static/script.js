@@ -25,12 +25,13 @@ socket.onmessage = message => {
     if (data.Type == "log") {
         let div = document.getElementById("logs");
         let text = div.innerHTML
-        let logs = text.split("<br>");
-        let numLines = logs.length;
-        if (numLines >= 50) {
-            div.innerHTML = logs.slice(1).join("<br>")
-        }
-        div.innerHTML += data.Data + "<br>"
+        // let logs = text.split("<br>");
+        // let numLines = logs.length;
+        // if (numLines >= 50) {
+        //     div.innerHTML = logs.slice(1).join("<br>")
+        // }
+        let log = JSON.parse(data.Data);
+        div.innerHTML += "<span style=\"color: lime\">" + log.app_name + "</span>" + " > " + log.message + "<br>"
         div.scrollTop = div.scrollHeight;
     } else if (data.Type == "stats") {
         let stats = JSON.parse(data.Data)
@@ -63,11 +64,13 @@ socket.onmessage = message => {
                 }
             }
 
+            let status = stats[i].pm2_env.status;
+
             txt += "<tr>"
             txt += "<td class=\"table_title\">" + stats[i].name + "</td>"
             txt += "<td>" + stats[i].pm_id + "</td>"
             txt += "<td>" + stats[i].pid + "</td>"
-            txt += "<td>" + stats[i].pm2_env.status + "</td>"
+            txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + "\">" + status + "</td>"
             txt += "<td>" + stats[i].pm2_env.restart_time + "</td>"
             txt += "<td>" + uptime_txt + "</td>"
             txt += "<td>" + stats[i].monit.cpu + "%</td>"
