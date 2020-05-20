@@ -98,8 +98,8 @@ socket.onmessage = message => {
         if(document.getElementById("stats").offsetHeight > statsHeight) shouldScroll = true;
         statsHeight = document.getElementById("stats").offsetHeight;
         div.style.top = (statsHeight + 10) + "px";
-        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
-        if (shouldScroll && isScrolledToBottom && !getSelectedText()) {
+        // let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
+        if (shouldScroll && !getSelectedText()) {
             div.scrollTop = div.scrollHeight - div.clientHeight
         }
     }
