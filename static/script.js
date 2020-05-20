@@ -5,7 +5,10 @@ document.title = "PM2 | " + host
 function updateUI() {
     let logsDiv = document.getElementById("logs");
     logsDiv.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
-    if (!getSelectedText()) logsDiv.scrollTop = logsDiv.scrollHeight;
+    let isScrolledToBottom = logsDiv.scrollHeight - logsDiv.clientHeight <= logsDiv.scrollTop + 1
+    if (isScrolledToBottom && !getSelectedText()) {
+        logsDiv.scrollTop = logsDiv.scrollHeight - logsDiv.clientHeight
+    }
 }
 
 function getSelectedText() {
@@ -39,7 +42,7 @@ socket.onmessage = message => {
         let div = document.getElementById("logs");
         let lines = div.getElementsByClassName('log')
         var selectedText = getSelectedText();
-        if (!selectedText) while(lines.length > 999) lines[0].remove();
+        while(lines.length > 999) lines[0].remove();
         let p = document.createElement("p");
         p.setAttribute("class", "log");
         let span = document.createElement("span");
@@ -47,8 +50,11 @@ socket.onmessage = message => {
         span.appendChild(document.createTextNode(log.app_name));
         p.appendChild(span);
         p.appendChild(document.createTextNode(" > " + log.message));
+        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
         div.appendChild(p);
-        if (!selectedText) div.scrollTop = div.scrollHeight;
+        if (isScrolledToBottom && !getSelectedText()) {
+            div.scrollTop = div.scrollHeight - div.clientHeight
+        }
     } else if (data.Type == "stats") {
         let stats = JSON.parse(data.Data)
         // console.log(stats)
