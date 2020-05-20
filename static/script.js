@@ -31,7 +31,7 @@ socket.onmessage = message => {
         //     div.innerHTML = logs.slice(1).join("<br>")
         // }
         let log = JSON.parse(data.Data);
-        div.innerHTML += "<span style=\"color: lime\">" + log.app_name + "</span>" + " > " + log.message + "<br>"
+        div.innerHTML += "<span style=\"color: #00bb00\">" + log.app_name + "</span>" + " > " + log.message + "<br>"
         div.scrollTop = div.scrollHeight;
     } else if (data.Type == "stats") {
         let stats = JSON.parse(data.Data)
