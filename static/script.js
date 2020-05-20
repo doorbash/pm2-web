@@ -1,6 +1,7 @@
 let host = window.document.location.host.replace(/:.*/, '');
 let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + "/logs")
 document.title = "PM2 | " + host
+let statsHeight = 0;
 
 function getSelectedText() {
     var text = "";
@@ -93,9 +94,12 @@ socket.onmessage = message => {
         txt += "</table>"
         document.getElementById("stats").innerHTML = txt;
         let div = document.getElementById("logs");
-        div.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
+        let shouldScroll = false;
+        if(document.getElementById("stats").offsetHeight > statsHeight) shouldScroll = true;
+        statsHeight = document.getElementById("stats").offsetHeight;
+        div.style.top = (statsHeight + 10) + "px";
         let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
-        if (isScrolledToBottom && !getSelectedText()) {
+        if (shouldScroll && isScrolledToBottom && !getSelectedText()) {
             div.scrollTop = div.scrollHeight - div.clientHeight
         }
     }
@@ -103,9 +107,12 @@ socket.onmessage = message => {
 
 window.onresize = function () {
     let div = document.getElementById("logs");
-    div.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
-    let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
-    if (!getSelectedText()) {
+    let shouldScroll = false;
+    if(document.getElementById("stats").offsetHeight > statsHeight) shouldScroll = true;
+    statsHeight = document.getElementById("stats").offsetHeight;
+    div.style.top = (statsHeight + 10) + "px";
+    // let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
+    if (shouldScroll && !getSelectedText()) {
         div.scrollTop = div.scrollHeight - div.clientHeight
     }
 }
