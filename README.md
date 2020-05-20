@@ -6,8 +6,7 @@ A simple web based monitor for PM2
 ## Usage
 1) Install:
 ```
-    go get github.com/goji/httpauth
-    go get github.com/gorilla/websocket
+    go get github.com/doorbash/pm2-web
 ```
 
 2) Run:
