@@ -24,7 +24,7 @@ p.log {
     margin: 0px;
     display: block;
     font-family: monospace;
-    white-space: pre-wrap;
+    white-space: pre;
 }
 
 #stats {
@@ -33,7 +33,7 @@ p.log {
     overflow-y: auto;
     display: block;
     font-family: monospace;
-    white-space: pre-wrap;
+    white-space: pre;
 }
 
 table {
