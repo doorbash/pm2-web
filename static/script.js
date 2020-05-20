@@ -5,8 +5,8 @@ document.title = "PM2 | " + host
 function updateUI() {
     let logsDiv = document.getElementById("logs");
     logsDiv.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
-    let isScrolledToBottom = logsDiv.scrollHeight - logsDiv.clientHeight <= logsDiv.scrollTop + 1
-    if (isScrolledToBottom && !getSelectedText()) {
+    // let isScrolledToBottom = logsDiv.scrollHeight - logsDiv.clientHeight <= logsDiv.scrollTop + 1
+    if (/*isScrolledToBottom && */!getSelectedText()) {
         logsDiv.scrollTop = logsDiv.scrollHeight - logsDiv.clientHeight
     }
 }
