@@ -2,15 +2,6 @@ let host = window.document.location.host.replace(/:.*/, '');
 let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + "/logs")
 document.title = "PM2 | " + host
 
-function updateUI() {
-    let logsDiv = document.getElementById("logs");
-    logsDiv.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
-    // let isScrolledToBottom = logsDiv.scrollHeight - logsDiv.clientHeight <= logsDiv.scrollTop + 1
-    if (/*isScrolledToBottom && */!getSelectedText()) {
-        logsDiv.scrollTop = logsDiv.scrollHeight - logsDiv.clientHeight
-    }
-}
-
 function getSelectedText() {
     var text = "";
     if (typeof window.getSelection != "undefined") {
@@ -38,15 +29,14 @@ socket.onmessage = message => {
     // console.log(data)
     if (data.Type == "log") {
         let log = JSON.parse(data.Data);
-        if(log.type !== "out" && log.type !== "err") return;
+        if (log.type !== "out" && log.type !== "err") return;
         let div = document.getElementById("logs");
         let lines = div.getElementsByClassName('log')
-        var selectedText = getSelectedText();
-        while(lines.length > 999) lines[0].remove();
+        while (lines.length > 999) lines[0].remove();
         let p = document.createElement("p");
         p.setAttribute("class", "log");
         let span = document.createElement("span");
-        span.setAttribute("style","color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
+        span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
         span.appendChild(document.createTextNode(log.app_name));
         p.appendChild(span);
         p.appendChild(document.createTextNode(" > " + log.message));
@@ -102,10 +92,20 @@ socket.onmessage = message => {
         }
         txt += "</table>"
         document.getElementById("stats").innerHTML = txt;
-        updateUI();
+        let div = document.getElementById("logs");
+        div.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
+        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
+        if (isScrolledToBottom && !getSelectedText()) {
+            div.scrollTop = div.scrollHeight - div.clientHeight
+        }
     }
 }
 
-window.onresize = function() {
-    updateUI();
+window.onresize = function () {
+    let div = document.getElementById("logs");
+    div.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
+    let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
+    if (!getSelectedText()) {
+        div.scrollTop = div.scrollHeight - div.clientHeight
+    }
 }
