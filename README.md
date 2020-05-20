@@ -11,6 +11,7 @@ A simple web based monitor for PM2
 
 2) Run:
 ```
+    cd $(go env GOPATH)/src/github.com/doorbash/pm2-web
     go build
     ./pm2-web
 ```
