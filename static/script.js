@@ -39,6 +39,7 @@ socket.onmessage = message => {
         let span = document.createElement("span");
         span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
         span.appendChild(document.createTextNode(log.app_name));
+        span.appendChild(document.createTextNode("\t[" + new Date(log.timestamp).toLocaleString() + "]"));
         p.appendChild(span);
         p.appendChild(document.createTextNode(" > " + log.message));
         let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
