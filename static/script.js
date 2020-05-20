@@ -107,12 +107,10 @@ socket.onmessage = message => {
 
 window.onresize = function () {
     let div = document.getElementById("logs");
-    let forceScroll = false;
-    if(document.getElementById("stats").offsetHeight > statsHeight) forceScroll = true;
     statsHeight = document.getElementById("stats").offsetHeight;
     div.style.top = (statsHeight + 10) + "px";
     // let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
-    if (forceScroll || !getSelectedText()) {
+    if (!getSelectedText()) {
         div.scrollTop = div.scrollHeight - div.clientHeight
     }
 }
