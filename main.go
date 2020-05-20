@@ -56,6 +56,7 @@ func main() {
 			logBuffer.PushBack(logData)
 			logsChan <- logData
 		}
+		log.Fatal("pm2 logs goroutine terminated.")
 	}()
 
 	go func() {
@@ -70,6 +71,7 @@ func main() {
 			logsChan <- stats
 			time.Sleep(10 * time.Second)
 		}
+		log.Fatal("pm2 jlist goroutine terminated.")
 	}()
 
 	go func() {
@@ -89,6 +91,7 @@ func main() {
 				clientsRemoveList = nil
 			}
 		}
+		log.Fatal("log broadcast goroutine terminated.")
 	}()
 
 	http.Handle("/", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.FileServer(http.Dir("./static"))))
