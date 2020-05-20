@@ -3,7 +3,9 @@ let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host
 document.title = "PM2 | " + host
 
 function updateUI() {
-    document.getElementById("logs").style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
+    let logsDiv = document.getElementById("logs");
+    logsDiv.style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
+    logsDiv.scrollTop = logsDiv.scrollHeight;
 }
 
 socket.onopen = () => {
