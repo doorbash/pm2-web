@@ -15,12 +15,11 @@ body {
     width: 100%;
     overflow-y: auto;
     position: absolute;
-    top: 200px;
+    top: 0px;
     bottom: 0;
 }
 
 #stats {
-    height: 200px;
     overflow-y: auto;
 }
 

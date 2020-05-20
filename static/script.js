@@ -1,7 +1,12 @@
 let host = window.document.location.host.replace(/:.*/, '');
 let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + "/logs")
 document.title = "PM2 | " + host
-// console.log("attempting ws connection...")
+let statsHeight = 0;
+
+function updateUI() {
+    document.getElementById("logs").style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
+}
+
 socket.onopen = () => {
     console.log("ws open")
 }
@@ -72,5 +77,11 @@ socket.onmessage = message => {
         }
         txt += "</table>"
         document.getElementById("stats").innerHTML = txt;
+        updateUI();
     }
+}
+
+window.onresize = function() {
+    console.log("window resize")
+    updateUI();
 }

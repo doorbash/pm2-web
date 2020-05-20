@@ -106,15 +106,15 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		for e := logBuffer.Front(); e != nil; e = e.Next() {
-			// fmt.Println(e.Value)
-			if err := client.WriteJSON(e.Value); err != nil {
+		if stats.Type != "" {
+			if err := client.WriteJSON(stats); err != nil {
 				client.Close()
 				return
 			}
 		}
-		if stats.Type != "" {
-			if err := client.WriteJSON(stats); err != nil {
+		for e := logBuffer.Front(); e != nil; e = e.Next() {
+			// fmt.Println(e.Value)
+			if err := client.WriteJSON(e.Value); err != nil {
 				client.Close()
 				return
 			}
