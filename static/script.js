@@ -1,7 +1,6 @@
 let host = window.document.location.host.replace(/:.*/, '');
 let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + "/logs")
 document.title = "PM2 | " + host
-let statsHeight = 0;
 
 function updateUI() {
     document.getElementById("logs").style.top = (document.getElementById("stats").offsetHeight + 10) + "px";
@@ -25,11 +24,11 @@ socket.onmessage = message => {
     if (data.Type == "log") {
         let div = document.getElementById("logs");
         let text = div.innerHTML
-        // let logs = text.split("<br>");
-        // let numLines = logs.length;
-        // if (numLines >= 50) {
-        //     div.innerHTML = logs.slice(1).join("<br>")
-        // }
+        let logs = text.split("<br>");
+        let numLines = logs.length;
+        if (numLines >= 50) {
+            div.innerHTML = logs.slice(1).join("<br>")
+        }
         let log = JSON.parse(data.Data);
         div.innerHTML += "<span style=\"color: #00bb00\">" + log.app_name + "</span>" + " > " + log.message + "<br>"
         div.scrollTop = div.scrollHeight;
@@ -85,6 +84,5 @@ socket.onmessage = message => {
 }
 
 window.onresize = function() {
-    console.log("window resize")
     updateUI();
 }
