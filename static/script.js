@@ -24,6 +24,8 @@ socket.onmessage = message => {
     let data = JSON.parse(message.data);
     // console.log(data)
     if (data.Type == "log") {
+        let log = JSON.parse(data.Data);
+        if(log.type !== "out") return;
         let div = document.getElementById("logs");
         let text = div.innerHTML
         let logs = text.split("<br>");
@@ -31,7 +33,6 @@ socket.onmessage = message => {
         if (numLines >= 50) {
             div.innerHTML = logs.slice(1).join("<br>")
         }
-        let log = JSON.parse(data.Data);
         div.innerHTML += "<span style=\"color: #00bb00\">" + log.app_name + "</span>" + " > " + log.message + "<br>"
         div.scrollTop = div.scrollHeight;
     } else if (data.Type == "stats") {
