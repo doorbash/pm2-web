@@ -29,8 +29,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
-var logsChan chan LogData = make(chan LogData)
+var clientsChan chan *websocket.Conn = make(chan *websocket.Conn, 100)
+var logsChan chan LogData = make(chan LogData, 100)
 var logBuffer = list.New()
 var stats LogData
 
