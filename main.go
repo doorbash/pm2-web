@@ -99,13 +99,14 @@ func main() {
 			return
 		}
 		if stats.Type != "" {
+			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
 			if err := client.WriteJSON(stats); err != nil {
 				client.Close()
 				return
 			}
 		}
 		for e := logBuffer.Front(); e != nil; e = e.Next() {
-			// fmt.Println(e.Value)
+			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
 			if err := client.WriteJSON(e.Value); err != nil {
 				client.Close()
 				return
