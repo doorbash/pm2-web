@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"container/list"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,7 +20,7 @@ const LOG_BUFFER_SIZE = 200
 
 type LogData struct {
 	Type string
-	Data string
+	Data interface{}
 	Time int64
 }
 
@@ -50,7 +51,9 @@ func main() {
 			}
 			for scanner.Scan() {
 				data := scanner.Text()
-				logData := LogData{Type: "log", Data: data, Time: time.Now().UnixNano() / 1e6}
+				var dat map[string]interface{}
+				json.Unmarshal([]byte(data), &dat)
+				logData := LogData{Type: "log", Data: dat, Time: time.Now().UnixNano() / 1e6}
 				for logBuffer.Len() >= LOG_BUFFER_SIZE {
 					e := logBuffer.Front()
 					logBuffer.Remove(e)
@@ -68,7 +71,22 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			stats = LogData{Type: "stats", Data: string(data), Time: time.Now().UnixNano() / 1e6}
+			var sObject []interface{}
+			json.Unmarshal(data, &sObject)
+			var oObject []interface{} = make([]interface{}, len(sObject))
+			for i := range sObject {
+				oObject[i] = make(map[string]interface{})
+				oObject[i].(map[string]interface{})["name"] = sObject[i].(map[string]interface{})["name"]
+				oObject[i].(map[string]interface{})["id"] = sObject[i].(map[string]interface{})["pm_id"]
+				oObject[i].(map[string]interface{})["pid"] = sObject[i].(map[string]interface{})["pid"]
+				oObject[i].(map[string]interface{})["uptime"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["pm_uptime"]
+				oObject[i].(map[string]interface{})["status"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["status"]
+				oObject[i].(map[string]interface{})["restart"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["restart_time"]
+				oObject[i].(map[string]interface{})["user"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["username"]
+				oObject[i].(map[string]interface{})["cpu"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["cpu"]
+				oObject[i].(map[string]interface{})["mem"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["memory"]
+			}
+			stats = LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}
 			logsChan <- stats
 			time.Sleep(10 * time.Second)
 		}

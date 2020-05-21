@@ -33,7 +33,7 @@ socket.onmessage = message => {
     let data = JSON.parse(message.data);
     // console.log(data)
     if (data.Type == "log") {
-        let log = JSON.parse(data.Data);
+        let log = data.Data;
         if (log.type !== "out" && log.type !== "err") return;
         let div = document.getElementById("logs");
         let lines = div.getElementsByClassName('log')
@@ -53,7 +53,7 @@ socket.onmessage = message => {
             div.scrollTop = div.scrollHeight - div.clientHeight
         }
     } else if (data.Type == "stats") {
-        let stats = JSON.parse(data.Data)
+        let stats = data.Data;
         // console.log(stats)
         let txt = "<table>"
         txt += "<tr class=\"table_title\">";
@@ -68,7 +68,7 @@ socket.onmessage = message => {
         txt += "<td>user</td>"
         txt += "</tr>"
         for (var i in stats) {
-            let uptime = Math.floor((data.Time - stats[i].pm2_env.pm_uptime) / 1000);
+            let uptime = Math.floor((data.Time - stats[i].uptime) / 1000);
             let uptime_txt = uptime % 60 + "s";
             uptime = Math.floor(uptime / 60);
             if (uptime > 0) {
@@ -83,18 +83,18 @@ socket.onmessage = message => {
                 }
             }
 
-            let status = stats[i].pm2_env.status;
+            let status = stats[i].status;
 
             txt += "<tr>"
             txt += "<td class=\"table_title\">" + stats[i].name + "</td>"
-            txt += "<td>" + stats[i].pm_id + "</td>"
+            txt += "<td>" + stats[i].id + "</td>"
             txt += "<td>" + stats[i].pid + "</td>"
             txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + ";\">" + status + "</td>"
-            txt += "<td>" + stats[i].pm2_env.restart_time + "</td>"
+            txt += "<td>" + stats[i].restart + "</td>"
             txt += "<td>" + uptime_txt + "</td>"
-            txt += "<td>" + stats[i].monit.cpu + "%</td>"
-            txt += "<td>" + (stats[i].monit.memory / (1024 * 1024)).toFixed(1) + " MB</td>"
-            txt += "<td>" + stats[i].pm2_env.username + "</td>"
+            txt += "<td>" + stats[i].cpu + "%</td>"
+            txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
+            txt += "<td>" + stats[i].user + "</td>"
             txt += "</tr>"
         }
         txt += "</table>"
