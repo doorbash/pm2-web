@@ -101,6 +101,7 @@ func main() {
 				// fmt.Printf("Num connected clients : %d \r\n", len(clients))
 			case client := <-removedClientsChan:
 				delete(clients, client)
+				close(client)
 				// fmt.Printf("Num connected clients : %d \r\n", len(clients))
 			case data := <-logsChan:
 				for client := range clients {
