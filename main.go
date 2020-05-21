@@ -29,8 +29,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-var clientsChan chan *websocket.Conn = make(chan *websocket.Conn, 100)
-var logsChan chan LogData = make(chan LogData, 100)
+var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
+var logsChan chan LogData = make(chan LogData)
 var logBuffer = list.New()
 var stats LogData
 
@@ -82,7 +82,9 @@ func main() {
 				clients[client] = true
 			case data := <-logsChan:
 				for client := range clients {
+					client.SetWriteDeadline(time.Now().Add(5 * time.Second))
 					if err := client.WriteJSON(data); err != nil {
+						fmt.Println(err)
 						client.Close()
 						clientsRemoveList = append(clientsRemoveList, client)
 						continue
