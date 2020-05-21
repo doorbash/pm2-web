@@ -1,3 +1,7 @@
+const SHOW_TIME = false;
+const SHOW_PID = false;
+const SHOW_APP_NAME = true;
+
 let host = window.document.location.host.replace(/:.*/, '');
 let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + "/logs")
 document.title = "PM2 | " + host
@@ -38,10 +42,11 @@ socket.onmessage = message => {
         p.setAttribute("class", "log");
         let span = document.createElement("span");
         span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
-        span.appendChild(document.createTextNode("[" + new Date(log.timestamp).toLocaleString() + "]\t"));
-        span.appendChild(document.createTextNode(log.app_name));
+        if(SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.timestamp).toLocaleString() + "]\t"));
+        if(SHOW_PID) span.appendChild(document.createTextNode(log.process_id + " "));
+        if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app_name + " "));
         p.appendChild(span);
-        p.appendChild(document.createTextNode(" > " + log.message));
+        p.appendChild(document.createTextNode("> " + log.message));
         let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
         div.appendChild(p);
         if (isScrolledToBottom && !getSelectedText()) {
