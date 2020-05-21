@@ -29,8 +29,9 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
-var logsChan chan LogData = make(chan LogData)
+var newClientsChan chan chan LogData = make(chan chan LogData, 100)
+var removedClientsChan chan chan LogData = make(chan chan LogData, 100)
+var logsChan chan LogData = make(chan LogData, 100)
 var logBuffer = list.New()
 var stats LogData
 
@@ -74,27 +75,16 @@ func main() {
 	}()
 
 	go func() {
-		var clients map[*websocket.Conn]bool = make(map[*websocket.Conn]bool)
-		var clientsRemoveList []*websocket.Conn
+		var clients map[chan LogData]bool = make(map[chan LogData]bool)
 		for {
 			select {
-			case client := <-clientsChan:
+			case client := <-newClientsChan:
 				clients[client] = true
+			case client := <-removedClientsChan:
+				delete(clients, client)
 			case data := <-logsChan:
 				for client := range clients {
-					client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-					if err := client.WriteJSON(data); err != nil {
-						fmt.Println(err)
-						client.Close()
-						clientsRemoveList = append(clientsRemoveList, client)
-						continue
-					}
-				}
-				if len(clientsRemoveList) > 0 {
-					for _, clientToRemove := range clientsRemoveList {
-						delete(clients, clientToRemove)
-					}
-					clientsRemoveList = nil
+					client <- data
 				}
 			}
 		}
@@ -121,7 +111,16 @@ func main() {
 				return
 			}
 		}
-		clientsChan <- client
+		clientChan := make(chan LogData, 100)
+		newClientsChan <- clientChan
+		for data := range clientChan {
+			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
+			if err := client.WriteJSON(data); err != nil {
+				client.Close()
+				removedClientsChan <- clientChan
+				return
+			}
+		}
 	})))
 
 	if err := http.ListenAndServe(":3030", nil); err != nil {
