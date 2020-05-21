@@ -42,7 +42,7 @@ socket.onmessage = message => {
         p.setAttribute("class", "log");
         let span = document.createElement("span");
         span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
-        if(SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.timestamp).toLocaleString() + "]\t"));
+        if(SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.timestamp).toLocaleString() + "] "));
         if(SHOW_PID) span.appendChild(document.createTextNode(log.process_id + " "));
         if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app_name + " "));
         p.appendChild(span);
