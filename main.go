@@ -29,34 +29,35 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-var clients map[*websocket.Conn]bool = make(map[*websocket.Conn]bool)
+var clientsChan chan *websocket.Conn = make(chan *websocket.Conn)
 var logsChan chan LogData = make(chan LogData)
 var logBuffer = list.New()
 var stats LogData
 
 func main() {
 	go func() {
-		// cmd := exec.Command("ping", "-t", "google.com")
-		cmd := exec.Command("pm2", "logs", "--json")
-		cmdReader, err := cmd.StdoutPipe()
-		if err != nil {
-			log.Fatal(err)
-		}
-		scanner := bufio.NewScanner(cmdReader)
-		if err := cmd.Start(); err != nil {
-			log.Fatal(err)
-		}
-		for scanner.Scan() {
-			data := scanner.Text()
-			logData := LogData{Type: "log", Data: data, Time: time.Now().UnixNano() / 1e6}
-			for logBuffer.Len() >= LOG_BUFFER_SIZE {
-				e := logBuffer.Front()
-				logBuffer.Remove(e)
+		for {
+			// cmd := exec.Command("ping", "google.com", "-c", "10")
+			cmd := exec.Command("pm2", "logs", "--json")
+			cmdReader, err := cmd.StdoutPipe()
+			if err != nil {
+				log.Fatal(err)
 			}
-			logBuffer.PushBack(logData)
-			logsChan <- logData
+			scanner := bufio.NewScanner(cmdReader)
+			if err := cmd.Start(); err != nil {
+				log.Fatal(err)
+			}
+			for scanner.Scan() {
+				data := scanner.Text()
+				logData := LogData{Type: "log", Data: data, Time: time.Now().UnixNano() / 1e6}
+				for logBuffer.Len() >= LOG_BUFFER_SIZE {
+					e := logBuffer.Front()
+					logBuffer.Remove(e)
+				}
+				logBuffer.PushBack(logData)
+				logsChan <- logData
+			}
 		}
-		log.Fatal("pm2 logs goroutine terminated.")
 	}()
 
 	go func() {
@@ -64,34 +65,37 @@ func main() {
 			cmd := exec.Command("pm2", "jlist")
 			data, err := cmd.Output()
 			if err != nil {
-				fmt.Println(err)
-				continue
+				log.Fatal(err)
 			}
 			stats = LogData{Type: "stats", Data: string(data), Time: time.Now().UnixNano() / 1e6}
 			logsChan <- stats
 			time.Sleep(10 * time.Second)
 		}
-		log.Fatal("pm2 jlist goroutine terminated.")
 	}()
 
 	go func() {
+		var clients map[*websocket.Conn]bool = make(map[*websocket.Conn]bool)
 		var clientsRemoveList []*websocket.Conn
-		for data := range logsChan {
-			for client := range clients {
-				if err := client.WriteJSON(data); err != nil {
-					client.Close()
-					clientsRemoveList = append(clientsRemoveList, client)
-					continue
+		for {
+			select {
+			case client := <-clientsChan:
+				clients[client] = true
+			case data := <-logsChan:
+				for client := range clients {
+					if err := client.WriteJSON(data); err != nil {
+						client.Close()
+						clientsRemoveList = append(clientsRemoveList, client)
+						continue
+					}
 				}
-			}
-			if len(clientsRemoveList) > 0 {
-				for _, clientToRemove := range clientsRemoveList {
-					delete(clients, clientToRemove)
+				if len(clientsRemoveList) > 0 {
+					for _, clientToRemove := range clientsRemoveList {
+						delete(clients, clientToRemove)
+					}
+					clientsRemoveList = nil
 				}
-				clientsRemoveList = nil
 			}
 		}
-		log.Fatal("log broadcast goroutine terminated.")
 	}()
 
 	http.Handle("/", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.FileServer(http.Dir("./static"))))
@@ -115,7 +119,7 @@ func main() {
 				return
 			}
 		}
-		clients[client] = true
+		clientsChan <- client
 	})))
 
 	if err := http.ListenAndServe(":3030", nil); err != nil {
