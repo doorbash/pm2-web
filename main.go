@@ -119,32 +119,34 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		if stats.Type != "" {
-			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			if err := client.WriteJSON(stats); err != nil {
-				client.Close()
-				return
+		go func() {
+			if stats.Type != "" {
+				client.SetWriteDeadline(time.Now().Add(5 * time.Second))
+				if err := client.WriteJSON(stats); err != nil {
+					client.Close()
+					return
+				}
 			}
-		}
-		for e := logBuffer.Front(); e != nil; e = e.Next() {
-			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			if err := client.WriteJSON(e.Value); err != nil {
-				client.Close()
-				return
+			for e := logBuffer.Front(); e != nil; e = e.Next() {
+				client.SetWriteDeadline(time.Now().Add(5 * time.Second))
+				if err := client.WriteJSON(e.Value); err != nil {
+					client.Close()
+					return
+				}
 			}
-		}
-		clientChan := make(chan LogData, 100)
-		fmt.Printf("Client connected from: %s \r\n", client.RemoteAddr().String())
-		newClientsChan <- clientChan
-		for data := range clientChan {
-			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			if err := client.WriteJSON(data); err != nil {
-				client.Close()
-				// fmt.Printf("Client disconnected from: %s \r\n", client.RemoteAddr().String())
-				removedClientsChan <- clientChan
-				return
+			clientChan := make(chan LogData, 100)
+			fmt.Printf("Client connected from: %s \r\n", client.RemoteAddr().String())
+			newClientsChan <- clientChan
+			for data := range clientChan {
+				client.SetWriteDeadline(time.Now().Add(5 * time.Second))
+				if err := client.WriteJSON(data); err != nil {
+					client.Close()
+					// fmt.Printf("Client disconnected from: %s \r\n", client.RemoteAddr().String())
+					removedClientsChan <- clientChan
+					return
+				}
 			}
-		}
+		}()
 	})))
 
 	if err := http.ListenAndServe(":3030", nil); err != nil {
