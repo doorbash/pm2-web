@@ -54,10 +54,26 @@ func main() {
 			}
 			for scanner.Scan() {
 				data := scanner.Text()
+				// fmt.Printf("data=%s\n", data) // timestamp app id type message
+				if !strings.HasPrefix(data, "timestamp=") {
+					continue
+				}
 				idx1 := strings.Index(data, " ")
+				if idx1 < 0 || !strings.HasPrefix(data[idx1+1:], "app=") {
+					continue
+				}
 				idx2 := idx1 + strings.Index(data[idx1+1:], " ") + 1
+				if idx2 < 0 || !strings.HasPrefix(data[idx2+1:], "id=") {
+					continue
+				}
 				idx3 := idx2 + strings.Index(data[idx2+1:], " ") + 1
+				if idx3 < 0 || !strings.HasPrefix(data[idx3+1:], "type=") {
+					continue
+				}
 				idx4 := idx3 + strings.Index(data[idx3+1:], " ") + 1
+				if idx4 < 0 || !strings.HasPrefix(data[idx4+1:], "message=") {
+					continue
+				}
 				var jM map[string]string = make(map[string]string)
 				jM["time"] = fmt.Sprintf("%s%c%s", data[10:20], ' ', data[21:idx1])
 				jM["app"] = data[idx1+5 : idx2]
