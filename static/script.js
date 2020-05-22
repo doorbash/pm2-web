@@ -46,7 +46,7 @@ socket.onmessage = message => {
         if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app_name + " "));
         p.appendChild(span);
         p.appendChild(document.createTextNode("> " + log.message));
-        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.3
+        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.25
         div.appendChild(p);
         if (isScrolledToBottom && !getSelectedText()) {
             div.scrollTop = div.scrollHeight - div.clientHeight
@@ -100,7 +100,7 @@ socket.onmessage = message => {
         let div = document.getElementById("logs");
         statsHeight = document.getElementById("stats").offsetHeight;
         div.style.top = (statsHeight + 10) + "px";
-        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.3
+        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.25
         if (isScrolledToBottom && !getSelectedText()) {
             div.scrollTop = div.scrollHeight - div.clientHeight
         }
