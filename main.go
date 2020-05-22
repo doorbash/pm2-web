@@ -10,6 +10,8 @@ import (
 	"os/exec"
 	"time"
 
+	//_ "net/http/pprof"
+
 	"github.com/goji/httpauth"
 	"github.com/gorilla/websocket"
 )
