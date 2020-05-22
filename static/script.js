@@ -33,7 +33,7 @@ socket.onmessage = message => {
     let data = JSON.parse(message.data);
     if (data.Type == "log") {
         let log = data.Data;
-        if (log.type !== "out" && log.type !== "err") return;
+        if (log.type !== "out" && log.type !== "error") return;
         let div = document.getElementById("logs");
         let lines = div.getElementsByClassName('log')
         while (lines.length > 999) lines[0].remove();
