@@ -125,11 +125,11 @@ func main() {
 			select {
 			case client := <-newClientsChan:
 				clients[client] = true
-				// fmt.Printf("Num connected clients : %d \r\n", len(clients))
+				fmt.Printf("Num connected clients : %d \r\n", len(clients))
 			case client := <-removedClientsChan:
 				delete(clients, client)
 				close(client)
-				// fmt.Printf("Num connected clients : %d \r\n", len(clients))
+				fmt.Printf("Num connected clients : %d \r\n", len(clients))
 			case data := <-logsChan:
 				for client := range clients {
 					client <- data
@@ -161,13 +161,13 @@ func main() {
 			}
 		}
 		clientChan := make(chan LogData, 100)
-		fmt.Printf("Client connected from: %s \r\n", client.RemoteAddr().String())
+		fmt.Printf("Client connected : %s \r\n", client.RemoteAddr().String())
 		newClientsChan <- clientChan
 		for data := range clientChan {
 			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
 			if err := client.WriteJSON(data); err != nil {
 				client.Close()
-				// fmt.Printf("Client disconnected from: %s \r\n", client.RemoteAddr().String())
+				fmt.Printf("Client disconnected : %s \r\n", client.RemoteAddr().String())
 				removedClientsChan <- clientChan
 				return
 			}
