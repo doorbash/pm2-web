@@ -31,7 +31,6 @@ socket.onerror = event => {
 
 socket.onmessage = message => {
     let data = JSON.parse(message.data);
-    // console.log(data)
     if (data.Type == "log") {
         let log = data.Data;
         if (log.type !== "out" && log.type !== "err") return;
@@ -47,14 +46,13 @@ socket.onmessage = message => {
         if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app_name + " "));
         p.appendChild(span);
         p.appendChild(document.createTextNode("> " + log.message));
-        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
+        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.3
         div.appendChild(p);
         if (isScrolledToBottom && !getSelectedText()) {
             div.scrollTop = div.scrollHeight - div.clientHeight
         }
     } else if (data.Type == "stats") {
         let stats = data.Data;
-        // console.log(stats)
         let txt = "<table>"
         txt += "<tr class=\"table_title\">";
         txt += "<td>App name</td>"
@@ -100,12 +98,10 @@ socket.onmessage = message => {
         txt += "</table>"
         document.getElementById("stats").innerHTML = txt;
         let div = document.getElementById("logs");
-        let shouldScroll = false;
-        if(document.getElementById("stats").offsetHeight > statsHeight) shouldScroll = true;
         statsHeight = document.getElementById("stats").offsetHeight;
         div.style.top = (statsHeight + 10) + "px";
-        // let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
-        if (shouldScroll && !getSelectedText()) {
+        let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.3
+        if (isScrolledToBottom && !getSelectedText()) {
             div.scrollTop = div.scrollHeight - div.clientHeight
         }
     }
@@ -115,7 +111,6 @@ window.onresize = function () {
     let div = document.getElementById("logs");
     statsHeight = document.getElementById("stats").offsetHeight;
     div.style.top = (statsHeight + 10) + "px";
-    // let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + 1
     if (!getSelectedText()) {
         div.scrollTop = div.scrollHeight - div.clientHeight
     }
