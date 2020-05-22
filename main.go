@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"strings"
 	"time"
 
 	//_ "net/http/pprof"
@@ -42,7 +43,7 @@ func main() {
 	go func() {
 		for {
 			// cmd := exec.Command("ping", "google.com", "-c", "10")
-			cmd := exec.Command("pm2", "logs", "--json")
+			cmd := exec.Command("pm2", "logs", "--format", "--timestamp")
 			cmdReader, err := cmd.StdoutPipe()
 			if err != nil {
 				log.Fatal(err)
@@ -53,9 +54,17 @@ func main() {
 			}
 			for scanner.Scan() {
 				data := scanner.Text()
-				var dat map[string]interface{}
-				json.Unmarshal([]byte(data), &dat)
-				logData := LogData{Type: "log", Data: dat, Time: time.Now().UnixNano() / 1e6}
+				idx1 := strings.Index(data, " ")
+				idx2 := idx1 + strings.Index(data[idx1+1:], " ") + 1
+				idx3 := idx2 + strings.Index(data[idx2+1:], " ") + 1
+				idx4 := idx3 + strings.Index(data[idx3+1:], " ") + 1
+				var jM map[string]string = make(map[string]string)
+				jM["time"] = fmt.Sprintf("%s%c%s", data[10:20], ' ', data[21:idx1])
+				jM["app"] = data[idx1+5 : idx2]
+				jM["id"] = data[idx2+4 : idx3]
+				jM["type"] = data[idx3+6 : idx4]
+				jM["message"] = data[idx4+9:]
+				logData := LogData{Type: "log", Data: jM, Time: time.Now().UnixNano() / 1e6}
 				for logBuffer.Len() >= LOG_BUFFER_SIZE {
 					e := logBuffer.Front()
 					logBuffer.Remove(e)

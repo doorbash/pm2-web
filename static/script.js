@@ -1,5 +1,5 @@
 const SHOW_TIME = false;
-const SHOW_PID = false;
+const SHOW_ID = false;
 const SHOW_APP_NAME = true;
 
 let host = window.document.location.host.replace(/:.*/, '');
@@ -41,9 +41,9 @@ socket.onmessage = message => {
         p.setAttribute("class", "log");
         let span = document.createElement("span");
         span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
-        if(SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.timestamp).toLocaleString() + "] "));
-        if(SHOW_PID) span.appendChild(document.createTextNode(log.process_id + " "));
-        if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app_name + " "));
+        if(SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.time).toLocaleString() + "] "));
+        if(SHOW_ID) span.appendChild(document.createTextNode(log.id + " "));
+        if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app + " "));
         p.appendChild(span);
         p.appendChild(document.createTextNode("> " + log.message));
         let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.25
