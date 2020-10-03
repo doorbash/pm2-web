@@ -1,4 +1,4 @@
-const SHOW_TIME = false;
+const SHOW_TIME = true;
 const SHOW_ID = false;
 const SHOW_APP_NAME = true;
 
