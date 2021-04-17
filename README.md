@@ -12,14 +12,20 @@ A simple web based monitor for PM2
 ## Usage
 ```
 ./pm2-web localhost:3030
+```
 
-// Set HTTP authentication:
+Set HTTP authentication:
+```
 ./pm2-web -u admin -p 1234 localhost:3030
+```
 
-// Set log buffer size:
+Set log buffer size:
+```
 ./pm2-web -l 200  localhost:3030
+```
 
-// Set process-list update interval (seconds):
+Set process-list update interval (seconds):
+```
 ./pm2-web -i 10
 ```
 
