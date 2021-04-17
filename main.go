@@ -3,13 +3,18 @@ package main
 import (
 	"container/list"
 	"fmt"
-	//_ "net/http/pprof"
+	"os"
+	"time"
+
+	"github.com/jessevdk/go-flags"
 )
 
-const USERNAME string = "admin"
-const PASSWORD string = "1234"
-const PORT int = 3030
-const LOG_BUFFER_SIZE = 200
+var opts struct {
+	Username      string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
+	Password      string `long:"password" description:"BasicAuth password" required:"false" default:""`
+	LogBufferSize int    `short:"l" long:"log-buffer-size" description:"Log buffer size" required:"false" default:"200"`
+	Interval      int    `short:"i" long:"interval" description:"PM2 process-list update interval" required:"false" default:"10"`
+}
 
 type LogData struct {
 	Type string
@@ -24,9 +29,21 @@ var logBuffer = list.New()
 var stats LogData
 
 func main() {
-	go logs()
 
-	go jlist()
+	parser := flags.NewParser(&opts, flags.Default)
+
+	parser.Usage = "[OPTIONS] address"
+
+	args, err := parser.Parse()
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	if len(args) == 0 {
+		parser.WriteHelp(os.Stdout)
+		return
+	}
 
 	go func() {
 		var clients map[chan LogData]bool = make(map[chan LogData]bool)
@@ -47,5 +64,6 @@ func main() {
 		}
 	}()
 
-	initServer()
+	NewPm2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
+	NewServer(args[0], opts.Username, opts.Password).Run()
 }
