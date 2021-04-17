@@ -21,12 +21,12 @@ Set HTTP authentication:
 
 Set log buffer size:
 ```
-./pm2-web -l 200  localhost:3030
+./pm2-web -l 200 localhost:3030
 ```
 
 Set process-list update interval (seconds):
 ```
-./pm2-web -i 10
+./pm2-web -i 10 localhost:3030
 ```
 
 ## Deploying on Nginx:
