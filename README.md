@@ -29,6 +29,11 @@ Set process-list update interval (seconds):
 ./pm2-web -i 10 localhost:3030
 ```
 
+Run using PM2:
+```
+pm2 start --name pm2-web ./pm2-web -- localhost:3030
+```
+
 ## Deploying on Nginx:
 
 ### Nginx configuration
