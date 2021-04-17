@@ -3,7 +3,8 @@ const SHOW_ID = false;
 const SHOW_APP_NAME = true;
 
 let host = window.document.location.host.replace(/:.*/, '');
-let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + "/logs")
+let pathname = window.location.pathname
+let socket = new WebSocket(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : '') + pathname + "logs")
 document.title = "PM2 | " + host
 let statsHeight = 0;
 
