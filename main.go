@@ -3,6 +3,7 @@ package main
 import (
 	"container/list"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -65,5 +66,7 @@ func main() {
 	}()
 
 	NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
-	NewHTTPServer(args[0], opts.Username, opts.Password).Run()
+	if err := NewHTTPServer(args[0], opts.Username, opts.Password).Run(); err != nil {
+		log.Fatalln(err)
+	}
 }
