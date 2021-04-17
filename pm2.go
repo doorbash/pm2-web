@@ -10,7 +10,24 @@ import (
 	"time"
 )
 
-func logs() {
+type PM2 struct {
+	Interval      time.Duration
+	LogBufferSize int
+}
+
+func NewPm2(interval time.Duration, logBufferSize int) *PM2 {
+	return &PM2{
+		Interval:      interval,
+		LogBufferSize: logBufferSize,
+	}
+}
+
+func (p *PM2) Run() {
+	go p.logs()
+	go p.jlist()
+}
+
+func (p *PM2) logs() {
 	for {
 		// cmd := exec.Command("ping", "google.com", "-c", "10")
 		cmd := exec.Command("pm2", "logs", "--format", "--timestamp")
@@ -51,7 +68,7 @@ func logs() {
 			jM["type"] = data[idx3+6 : idx4]
 			jM["message"] = data[idx4+9:]
 			logData := LogData{Type: "log", Data: jM, Time: time.Now().UnixNano() / 1e6}
-			for logBuffer.Len() >= LOG_BUFFER_SIZE {
+			for logBuffer.Len() >= p.LogBufferSize {
 				e := logBuffer.Front()
 				logBuffer.Remove(e)
 			}
@@ -61,10 +78,11 @@ func logs() {
 	}
 }
 
-func jlist() {
+func (p *PM2) jlist() {
 	for {
 		cmd := exec.Command("pm2", "jlist")
 		data, err := cmd.Output()
+		// fmt.Println(string(data))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -85,6 +103,6 @@ func jlist() {
 		}
 		stats = LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}
 		logsChan <- stats
-		time.Sleep(10 * time.Second)
+		time.Sleep(p.Interval)
 	}
 }

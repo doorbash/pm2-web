@@ -2,23 +2,34 @@ package main
 
 import (
 	"fmt"
-	"github.com/goji/httpauth"
-	"github.com/gorilla/websocket"
 	"net/http"
 	"time"
+
+	"github.com/goji/httpauth"
+	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin:     func(r *http.Request) bool { return true },
+type HttpServer struct {
+	Addr     string
+	upgrader websocket.Upgrader
 }
 
-func initServer() {
-	http.Handle("/", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.FileServer(http.Dir("./static"))))
+func NewServer(addr, username, passwrod string) *HttpServer {
+	return (&HttpServer{
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin:     func(r *http.Request) bool { return true },
+		},
+		Addr: addr,
+	}).init(username, passwrod)
+}
 
-	http.Handle("/logs", httpauth.SimpleBasicAuth(USERNAME, PASSWORD)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var client, err = upgrader.Upgrade(w, r, nil)
+func (s *HttpServer) init(username, password string) *HttpServer {
+	staticHandler := http.FileServer(http.Dir("./static"))
+
+	logsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var client, err = s.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -49,9 +60,19 @@ func initServer() {
 				return
 			}
 		}
-	})))
+	})
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil); err != nil {
-		fmt.Println(err)
+	if username == "" {
+		http.Handle("/", staticHandler)
+		http.Handle("/logs", logsHandler)
+	} else {
+		http.Handle("/", httpauth.SimpleBasicAuth(username, password)(staticHandler))
+		http.Handle("/logs", httpauth.SimpleBasicAuth(username, password)(logsHandler))
 	}
+
+	return s
+}
+
+func (s *HttpServer) Run() error {
+	return http.ListenAndServe(s.Addr, nil)
 }
