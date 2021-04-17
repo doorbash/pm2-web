@@ -33,9 +33,9 @@ Run using PM2:
 pm2 start --name pm2-web ./pm2-web -- localhost:3030
 ```
 
-## Deploying on Nginx:
+## Running behind reverse proxy
 
-### Nginx configuration
+### Nginx
 
 ```
 server {
@@ -58,8 +58,6 @@ server {
         rewrite ^/pm2/(.*)$ /$1 break;    
         proxy_pass  http://127.0.0.1:3030;
         proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /pm2 {
