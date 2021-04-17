@@ -5,7 +5,6 @@ A simple web based monitor for PM2
 
 ## Build
 ```
-    go get -d ./...
     go build
 ```
 
@@ -14,7 +13,7 @@ A simple web based monitor for PM2
 ./pm2-web localhost:3030
 ```
 
-Set HTTP authentication:
+Set HTTP authentication username password:
 ```
 ./pm2-web -u admin -p 1234 localhost:3030
 ```
