@@ -5,7 +5,7 @@ A simple web based monitor for PM2
 
 ## Build
 ```
-    go build
+go build
 ```
 
 ## Usage

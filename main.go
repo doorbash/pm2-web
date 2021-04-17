@@ -14,7 +14,7 @@ var opts struct {
 	Username      string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
 	Password      string `short:"p" long:"password" description:"BasicAuth password" required:"false" default:""`
 	LogBufferSize int    `short:"l" long:"log-buffer-size" description:"Log buffer size" required:"false" default:"200"`
-	Interval      int    `short:"i" long:"interval" description:"PM2 process-list update interval" required:"false" default:"10"`
+	Interval      int    `short:"i" long:"interval" description:"PM2 process-list update interval in seconds" required:"false" default:"10"`
 }
 
 type LogData struct {
