@@ -15,7 +15,7 @@ type PM2 struct {
 	LogBufferSize int
 }
 
-func NewPm2(interval time.Duration, logBufferSize int) *PM2 {
+func NewPM2(interval time.Duration, logBufferSize int) *PM2 {
 	return &PM2{
 		Interval:      interval,
 		LogBufferSize: logBufferSize,

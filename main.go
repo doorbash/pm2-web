@@ -64,6 +64,6 @@ func main() {
 		}
 	}()
 
-	NewPm2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
-	NewServer(args[0], opts.Username, opts.Password).Run()
+	NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
+	NewHTTPServer(args[0], opts.Username, opts.Password).Run()
 }

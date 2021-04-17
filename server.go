@@ -14,7 +14,7 @@ type HttpServer struct {
 	upgrader websocket.Upgrader
 }
 
-func NewServer(addr, username, passwrod string) *HttpServer {
+func NewHTTPServer(addr, username, passwrod string) *HttpServer {
 	return (&HttpServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
