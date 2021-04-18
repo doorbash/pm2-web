@@ -45,7 +45,7 @@ pm2 start --name pm2-web ./pm2-web -- localhost:3030
 pm2 start --name pm2-web ./pm2-web -- -u admin -p 1234 localhost:3030
 ```
 
-### Behind reverse proxy:
+### Run Behind reverse proxy:
 
 **Nginx configuration:**
 ```
