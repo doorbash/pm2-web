@@ -10,33 +10,44 @@ go build
 
 ## Usage
 ```
+./pm2-web [Options] bind_address
+```
+
+## Options
+```
+  -u, --username=        BasicAuth username
+  -p, --password=        BasicAuth password
+  -l, --log-buffer-size= Log buffer size (default: 200)
+  -i, --interval=        PM2 process-list update interval (default: 10)
+```
+
+## Example
+
+### Run without authentication:
+
+```
 ./pm2-web localhost:3030
 ```
 
-Set HTTP authentication username password:
-```
-./pm2-web -u admin -p 1234 localhost:3030
-```
-
-Set log buffer size:
-```
-./pm2-web -l 200 localhost:3030
-```
-
-Set process-list update interval (seconds):
-```
-./pm2-web -i 10 localhost:3030
-```
-
-Run using PM2:
+*or using PM2:*
 ```
 pm2 start --name pm2-web ./pm2-web -- localhost:3030
 ```
 
-## Running behind reverse proxy
+### Run with authentication:
 
-### Nginx
+```
+./pm2-web -u admin -p 1234 localhost:3030
+```
 
+*or using PM2:*
+```
+pm2 start --name pm2-web ./pm2-web -- -u admin -p 1234 localhost:3030
+```
+
+### Behind reverse proxy:
+
+*Nginx configuration:*
 ```
 server {
     listen 80;
