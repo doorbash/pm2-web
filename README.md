@@ -10,15 +10,15 @@ go build
 
 ## Usage
 ```
-./pm2-web [Options] bind_address
+./pm2-web [OPTIONS] bind_address
 ```
 
-## Options
+**Options:**
 ```
   -u, --username=        BasicAuth username
   -p, --password=        BasicAuth password
   -l, --log-buffer-size= Log buffer size (default: 200)
-  -i, --interval=        PM2 process-list update interval (default: 10)
+  -i, --interval=        PM2 process-list update interval in seconds (default: 10)
 ```
 
 ## Example
@@ -29,7 +29,7 @@ go build
 ./pm2-web localhost:3030
 ```
 
-*or using PM2:*
+**or using PM2:**
 ```
 pm2 start --name pm2-web ./pm2-web -- localhost:3030
 ```
@@ -40,14 +40,14 @@ pm2 start --name pm2-web ./pm2-web -- localhost:3030
 ./pm2-web -u admin -p 1234 localhost:3030
 ```
 
-*or using PM2:*
+**or using PM2:**
 ```
 pm2 start --name pm2-web ./pm2-web -- -u admin -p 1234 localhost:3030
 ```
 
 ### Behind reverse proxy:
 
-*Nginx configuration:*
+**Nginx configuration:**
 ```
 server {
     listen 80;
