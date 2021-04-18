@@ -10,7 +10,7 @@ go build
 
 ## Usage
 ```
-./pm2-web [OPTIONS] bind_address
+./pm2-web [OPTIONS] address
 ```
 
 **Options:**
