@@ -18,9 +18,10 @@ function getSelectedText() {
     return text;
 }
 
-function pm2Command(type,id){
+function pm2Command(type, id) {
     const xmlHttp = new XMLHttpRequest();
-    let url=`/command?op=${type}&id=${id}`;
+    let url = location.protocol + "//" + host + (location.port ? ':' + location.port : '') + pathname + `command?op=${type}&id=${id}`
+    console.log("url is " + url)
     xmlHttp.open("GET", url);
     xmlHttp.send();
 }
@@ -49,9 +50,9 @@ socket.onmessage = message => {
         p.setAttribute("class", "log");
         let span = document.createElement("span");
         span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
-        if(SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.time).toLocaleString() + "] "));
-        if(SHOW_ID) span.appendChild(document.createTextNode(log.id + " "));
-        if(SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app + " "));
+        if (SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.time).toLocaleString() + "] "));
+        if (SHOW_ID) span.appendChild(document.createTextNode(log.id + " "));
+        if (SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app + " "));
         p.appendChild(span);
         p.appendChild(document.createTextNode("> " + log.message));
         let isScrolledToBottom = div.scrollHeight - div.clientHeight <= div.scrollTop + div.offsetHeight * 0.25
@@ -72,7 +73,7 @@ socket.onmessage = message => {
         txt += "<td>cpu</td>"
         txt += "<td>mem</td>"
         txt += "<td>user</td>"
-        txt += "<td>commands</td>"
+        txt += "<td>actions</td>"
         txt += "</tr>"
         for (var i in stats) {
             let uptime = Math.floor((data.Time - stats[i].uptime) / 1000);
@@ -102,9 +103,13 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
             txt += "<td>" + stats[i].user + "</td>"
-            txt += `<td> <button class="button" onclick="pm2Command('restart',${stats[i].id})">&#9679; restart</button>`
-            txt += `<button class="button" onclick="pm2Command('stop',${stats[i].id})">&#9632; stop</button>`
-            txt += `<button class="button" onclick="pm2Command('start',${stats[i].id})">&#9654; start</button></td>`
+            txt += "<td>"
+            if (status == "online") {
+                txt += `<button class="button" onclick="pm2Command('stop',${stats[i].id})">&#9209; stop</button>`
+            } else {
+                txt += `<button class="button" onclick="pm2Command('start',${stats[i].id})">&#9654; start</button>`
+            }
+            txt += `<button ${status!="online" ? "style=\"visibility:hidden;\"" : ""} class="button" onclick="pm2Command('restart',${stats[i].id})">&#128472; restart</button></td>`
             txt += "</tr>"
         }
         txt += "</table>"
