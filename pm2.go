@@ -22,9 +22,10 @@ func NewPM2(interval time.Duration, logBufferSize int) *PM2 {
 	}
 }
 
-func (p *PM2) Run() {
+func (p *PM2) Run() *PM2 {
 	go p.logs()
 	go p.jlist()
+	return p
 }
 
 func (p *PM2) logs() {
@@ -105,4 +106,22 @@ func (p *PM2) jlist() {
 		logsChan <- stats
 		time.Sleep(p.Interval)
 	}
+}
+
+func (p *PM2) Start(id string) error {
+	cmd := exec.Command("pm2", "start", id)
+	_, err := cmd.Output()
+	return err
+}
+
+func (p *PM2) Stop(id string) error {
+	cmd := exec.Command("pm2", "stop", id)
+	_, err := cmd.Output()
+	return err
+}
+
+func (p *PM2) Restart(id string) error {
+	cmd := exec.Command("pm2", "restart", id)
+	_, err := cmd.Output()
+	return err
 }

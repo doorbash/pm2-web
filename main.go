@@ -65,8 +65,8 @@ func main() {
 		}
 	}()
 
-	NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
-	if err := NewHTTPServer(args[0], opts.Username, opts.Password).Run(); err != nil {
+	pm2 := NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
+	if err := NewHTTPServer(args[0], opts.Username, opts.Password, pm2).Run(); err != nil {
 		log.Fatalln(err)
 	}
 }
