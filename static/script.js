@@ -18,6 +18,13 @@ function getSelectedText() {
     return text;
 }
 
+function pm2Command(type,id){
+    const xmlHttp = new XMLHttpRequest();
+    let url=`/command?op=${type}&id=${id}`;
+    xmlHttp.open("GET", url);
+    xmlHttp.send();
+}
+
 socket.onopen = () => {
     console.log("ws open")
 }
@@ -65,6 +72,7 @@ socket.onmessage = message => {
         txt += "<td>cpu</td>"
         txt += "<td>mem</td>"
         txt += "<td>user</td>"
+        txt += "<td>commands</td>"
         txt += "</tr>"
         for (var i in stats) {
             let uptime = Math.floor((data.Time - stats[i].uptime) / 1000);
@@ -94,6 +102,9 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
             txt += "<td>" + stats[i].user + "</td>"
+            txt += `<td> <button type="button" onclick="pm2Command('restart',${stats[i].id})">restart</button>`
+            txt += `<button type="button" onclick="pm2Command('stop',${stats[i].id})">stop</button>`
+            txt += `<button type="button" onclick="pm2Command('start',${stats[i].id})">start</button></td>`
             txt += "</tr>"
         }
         txt += "</table>"
