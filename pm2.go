@@ -79,31 +79,35 @@ func (p *PM2) logs() {
 	}
 }
 
+func getJlist() {
+	cmd := exec.Command("pm2", "jlist")
+	data, err := cmd.Output()
+	// fmt.Println(string(data))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var sObject []interface{}
+	json.Unmarshal(data, &sObject)
+	var oObject []interface{} = make([]interface{}, len(sObject))
+	for i := range sObject {
+		oObject[i] = make(map[string]interface{})
+		oObject[i].(map[string]interface{})["name"] = sObject[i].(map[string]interface{})["name"]
+		oObject[i].(map[string]interface{})["id"] = sObject[i].(map[string]interface{})["pm_id"]
+		oObject[i].(map[string]interface{})["pid"] = sObject[i].(map[string]interface{})["pid"]
+		oObject[i].(map[string]interface{})["uptime"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["pm_uptime"]
+		oObject[i].(map[string]interface{})["status"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["status"]
+		oObject[i].(map[string]interface{})["restart"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["restart_time"]
+		oObject[i].(map[string]interface{})["user"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["username"]
+		oObject[i].(map[string]interface{})["cpu"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["cpu"]
+		oObject[i].(map[string]interface{})["mem"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["memory"]
+	}
+	stats = LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}
+	logsChan <- stats
+}
+
 func (p *PM2) jlist() {
 	for {
-		cmd := exec.Command("pm2", "jlist")
-		data, err := cmd.Output()
-		// fmt.Println(string(data))
-		if err != nil {
-			log.Fatal(err)
-		}
-		var sObject []interface{}
-		json.Unmarshal(data, &sObject)
-		var oObject []interface{} = make([]interface{}, len(sObject))
-		for i := range sObject {
-			oObject[i] = make(map[string]interface{})
-			oObject[i].(map[string]interface{})["name"] = sObject[i].(map[string]interface{})["name"]
-			oObject[i].(map[string]interface{})["id"] = sObject[i].(map[string]interface{})["pm_id"]
-			oObject[i].(map[string]interface{})["pid"] = sObject[i].(map[string]interface{})["pid"]
-			oObject[i].(map[string]interface{})["uptime"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["pm_uptime"]
-			oObject[i].(map[string]interface{})["status"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["status"]
-			oObject[i].(map[string]interface{})["restart"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["restart_time"]
-			oObject[i].(map[string]interface{})["user"] = sObject[i].(map[string]interface{})["pm2_env"].(map[string]interface{})["username"]
-			oObject[i].(map[string]interface{})["cpu"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["cpu"]
-			oObject[i].(map[string]interface{})["mem"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["memory"]
-		}
-		stats = LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}
-		logsChan <- stats
+		getJlist()
 		time.Sleep(p.Interval)
 	}
 }
@@ -111,17 +115,26 @@ func (p *PM2) jlist() {
 func (p *PM2) Start(id string) error {
 	cmd := exec.Command("pm2", "start", id)
 	_, err := cmd.Output()
+	if err == nil {
+		getJlist()
+	}
 	return err
 }
 
 func (p *PM2) Stop(id string) error {
 	cmd := exec.Command("pm2", "stop", id)
 	_, err := cmd.Output()
+	if err == nil {
+		getJlist()
+	}
 	return err
 }
 
 func (p *PM2) Restart(id string) error {
 	cmd := exec.Command("pm2", "restart", id)
 	_, err := cmd.Output()
+	if err == nil {
+		getJlist()
+	}
 	return err
 }
