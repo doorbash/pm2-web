@@ -64,6 +64,10 @@ server {
         proxy_set_header Connection "Upgrade";
         proxy_set_header Host $host;
     }
+    
+    location /pm2/command {
+        proxy_pass  http://127.0.0.1:3030/command;
+    }
 
     location /pm2/ {
         rewrite ^/pm2/(.*)$ /$1 break;    
