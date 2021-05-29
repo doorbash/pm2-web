@@ -102,9 +102,9 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
             txt += "<td>" + stats[i].user + "</td>"
-            txt += `<td> <button type="button" onclick="pm2Command('restart',${stats[i].id})">restart</button>`
-            txt += `<button type="button" onclick="pm2Command('stop',${stats[i].id})">stop</button>`
-            txt += `<button type="button" onclick="pm2Command('start',${stats[i].id})">start</button></td>`
+            txt += `<td> <button class="button" onclick="pm2Command('restart',${stats[i].id})">&#9679; restart</button>`
+            txt += `<button class="button" onclick="pm2Command('stop',${stats[i].id})">&#9632; stop</button>`
+            txt += `<button class="button" onclick="pm2Command('start',${stats[i].id})">&#9654; start</button></td>`
             txt += "</tr>"
         }
         txt += "</table>"

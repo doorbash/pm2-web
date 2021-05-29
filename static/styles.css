@@ -77,3 +77,15 @@ td {
     -o-user-select: none;
     user-select: none;
 }
+
+.button {
+    background-color: transparent;
+    color: #00ff00;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button:hover{
+    color: #00bb00;
+}
