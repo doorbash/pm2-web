@@ -113,7 +113,6 @@ func (s *HttpServer) init(username, password string, pm2 *PM2) *HttpServer {
 			}
 
 		default:
-			log.Printf("op = %s is not supported " + op)
 			w.Write([]byte("bad op"))
 		}
 	})
