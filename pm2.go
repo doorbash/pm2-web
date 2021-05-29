@@ -116,7 +116,7 @@ func (p *PM2) Start(id string) error {
 	cmd := exec.Command("pm2", "start", id)
 	_, err := cmd.Output()
 	if err == nil {
-		getJlist()
+		go getJlist()
 	}
 	return err
 }
@@ -125,7 +125,7 @@ func (p *PM2) Stop(id string) error {
 	cmd := exec.Command("pm2", "stop", id)
 	_, err := cmd.Output()
 	if err == nil {
-		getJlist()
+		go getJlist()
 	}
 	return err
 }
@@ -134,7 +134,7 @@ func (p *PM2) Restart(id string) error {
 	cmd := exec.Command("pm2", "restart", id)
 	_, err := cmd.Output()
 	if err == nil {
-		getJlist()
+		go getJlist()
 	}
 	return err
 }
