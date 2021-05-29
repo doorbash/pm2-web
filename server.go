@@ -15,7 +15,7 @@ type HttpServer struct {
 	upgrader websocket.Upgrader
 }
 
-func NewHTTPServer(addr, username, passwrod string, pm2 *PM2) *HttpServer {
+func NewHTTPServer(addr, username, password string, pm2 *PM2) *HttpServer {
 	return (&HttpServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
@@ -23,7 +23,7 @@ func NewHTTPServer(addr, username, passwrod string, pm2 *PM2) *HttpServer {
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		Addr: addr,
-	}).init(username, passwrod, pm2)
+	}).init(username, password, pm2)
 }
 
 func (s *HttpServer) init(username, password string, pm2 *PM2) *HttpServer {
