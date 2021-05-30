@@ -105,7 +105,7 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].user + "</td>"
             txt += "<td>"
             if (status == "online") {
-                txt += `<button class="button" onclick="pm2Command('stop',${stats[i].id})">&#9209; stop</button>`
+                txt += `<button class="button" onclick="pm2Command('stop',${stats[i].id})">&#9632; stop</button>`
             } else {
                 txt += `<button class="button" onclick="pm2Command('start',${stats[i].id})">&#9654; start</button>`
             }
