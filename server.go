@@ -33,13 +33,13 @@ func (s *HttpServer) init(username, password string, actionsEnabled bool, pm2 *P
 	jsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		templ, err := template.ParseFiles("./static/script.js")
 		if err != nil {
-			fmt.Println("Error = ", err)
+			fmt.Println(err)
 			return
 		}
+		w.Header().Add("Content-Type", "text/javascript")
 		err = templ.Execute(w, actionsEnabled)
 		if err != nil {
-			fmt.Println("Error = ", err)
-			return
+			fmt.Println(err)
 		}
 	})
 
