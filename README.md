@@ -19,6 +19,7 @@ go build
   -p, --password=        BasicAuth password
   -l, --log-buffer-size= Log buffer size (default: 200)
   -i, --interval=        PM2 process-list update interval in seconds (default: 10)
+      --actions          Whether to show start, stop and restart buttons or not
 ```
 
 ## Example
