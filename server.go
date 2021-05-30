@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"text/template"
 	"time"
 
 	"github.com/goji/httpauth"
@@ -15,7 +16,7 @@ type HttpServer struct {
 	upgrader websocket.Upgrader
 }
 
-func NewHTTPServer(addr, username, password string, pm2 *PM2) *HttpServer {
+func NewHTTPServer(addr, username, password string, actionsEnabled bool, pm2 *PM2) *HttpServer {
 	return (&HttpServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
@@ -23,11 +24,24 @@ func NewHTTPServer(addr, username, password string, pm2 *PM2) *HttpServer {
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		Addr: addr,
-	}).init(username, password, pm2)
+	}).init(username, password, actionsEnabled, pm2)
 }
 
-func (s *HttpServer) init(username, password string, pm2 *PM2) *HttpServer {
+func (s *HttpServer) init(username, password string, actionsEnabled bool, pm2 *PM2) *HttpServer {
 	staticHandler := http.FileServer(http.Dir("./static"))
+
+	jsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		templ, err := template.ParseFiles("./static/script.js")
+		if err != nil {
+			fmt.Println("Error = ", err)
+			return
+		}
+		err = templ.Execute(w, actionsEnabled)
+		if err != nil {
+			fmt.Println("Error = ", err)
+			return
+		}
+	})
 
 	logsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var client, err = s.upgrader.Upgrade(w, r, nil)
@@ -63,7 +77,7 @@ func (s *HttpServer) init(username, password string, pm2 *PM2) *HttpServer {
 		}
 	})
 
-	commandHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	actionHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ops, ok := r.URL.Query()["op"]
 		if !ok || len(ops[0]) < 1 {
 			log.Println("Url Param 'op' is missing")
@@ -119,12 +133,18 @@ func (s *HttpServer) init(username, password string, pm2 *PM2) *HttpServer {
 
 	if username == "" {
 		http.Handle("/", staticHandler)
+		http.Handle("/script.js", jsHandler)
 		http.Handle("/logs", logsHandler)
-		http.Handle("/command", commandHandler)
+		if actionsEnabled {
+			http.Handle("/action", actionHandler)
+		}
 	} else {
 		http.Handle("/", httpauth.SimpleBasicAuth(username, password)(staticHandler))
+		http.Handle("/script.js", httpauth.SimpleBasicAuth(username, password)(jsHandler))
 		http.Handle("/logs", httpauth.SimpleBasicAuth(username, password)(logsHandler))
-		http.Handle("/command", httpauth.SimpleBasicAuth(username, password)(commandHandler))
+		if actionsEnabled {
+			http.Handle("/action", httpauth.SimpleBasicAuth(username, password)(actionHandler))
+		}
 	}
 
 	return s

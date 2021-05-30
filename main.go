@@ -11,10 +11,11 @@ import (
 )
 
 var opts struct {
-	Username      string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
-	Password      string `short:"p" long:"password" description:"BasicAuth password" required:"false" default:""`
-	LogBufferSize int    `short:"l" long:"log-buffer-size" description:"Log buffer size" required:"false" default:"200"`
-	Interval      int    `short:"i" long:"interval" description:"PM2 process-list update interval in seconds" required:"false" default:"10"`
+	Username       string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
+	Password       string `short:"p" long:"password" description:"BasicAuth password" required:"false" default:""`
+	LogBufferSize  int    `short:"l" long:"log-buffer-size" description:"Log buffer size" required:"false" default:"200"`
+	Interval       int    `short:"i" long:"interval" description:"PM2 process-list update interval in seconds" required:"false" default:"10"`
+	ActionsEnabled bool   `long:"actions" description:"Whether to show start, stop and restart buttons or not" required:"false"`
 }
 
 type LogData struct {
@@ -38,7 +39,7 @@ func main() {
 	args, err := parser.Parse()
 
 	if err != nil {
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
 	if len(args) == 0 {
@@ -66,7 +67,7 @@ func main() {
 	}()
 
 	pm2 := NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
-	if err := NewHTTPServer(args[0], opts.Username, opts.Password, pm2).Run(); err != nil {
+	if err := NewHTTPServer(args[0], opts.Username, opts.Password, opts.ActionsEnabled, pm2).Run(); err != nil {
 		log.Fatalln(err)
 	}
 }

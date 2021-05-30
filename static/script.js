@@ -1,3 +1,4 @@
+const SHOW_ACTIONS = {{.}};
 const SHOW_TIME = true;
 const SHOW_ID = false;
 const SHOW_APP_NAME = true;
@@ -18,10 +19,9 @@ function getSelectedText() {
     return text;
 }
 
-function pm2Command(type, id) {
+function pm2Action(type, id) {
     const xmlHttp = new XMLHttpRequest();
-    let url = location.protocol + "//" + host + (location.port ? ':' + location.port : '') + pathname + `command?op=${type}&id=${id}`
-    console.log("url is " + url)
+    let url = location.protocol + "//" + host + (location.port ? ':' + location.port : '') + pathname + `action?op=${type}&id=${id}`
     xmlHttp.open("GET", url);
     xmlHttp.send();
 }
@@ -73,7 +73,7 @@ socket.onmessage = message => {
         txt += "<td>cpu</td>"
         txt += "<td>mem</td>"
         txt += "<td>user</td>"
-        txt += "<td>actions</td>"
+        if (SHOW_ACTIONS) txt += "<td>actions</td>"
         txt += "</tr>"
         for (var i in stats) {
             let uptime = Math.floor((data.Time - stats[i].uptime) / 1000);
@@ -103,13 +103,15 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
             txt += "<td>" + stats[i].user + "</td>"
-            txt += "<td>"
-            if (status == "online") {
-                txt += `<button class="button" onclick="pm2Command('stop',${stats[i].id})">&#9632; stop</button>`
-            } else {
-                txt += `<button class="button" onclick="pm2Command('start',${stats[i].id})">&#9654; start</button>`
+            if (SHOW_ACTIONS) {
+                txt += "<td>"
+                if (status == "online") {
+                    txt += `<button class="button" onclick="pm2Action('stop',${stats[i].id})">&#9632; stop</button>`
+                } else {
+                    txt += `<button class="button" onclick="pm2Action('start',${stats[i].id})">&#9654; start</button>`
+                }
+                txt += `<button ${status != "online" ? "style=\"visibility:hidden;\"" : ""} class="button" onclick="pm2Action('restart',${stats[i].id})">&#128472; restart</button></td>`
             }
-            txt += `<button ${status!="online" ? "style=\"visibility:hidden;\"" : ""} class="button" onclick="pm2Command('restart',${stats[i].id})">&#128472; restart</button></td>`
             txt += "</tr>"
         }
         txt += "</table>"
