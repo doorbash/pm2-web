@@ -16,7 +16,7 @@ type Options struct {
 	LogBufferSize  int    `short:"l" long:"log-buffer-size" description:"Log buffer size" required:"false" default:"200"`
 	Interval       int    `short:"i" long:"interval" description:"PM2 process-list update interval in seconds" required:"false" default:"10"`
 	TimeEnabled    bool   `long:"time" description:"Show log time" required:"false"`
-	IdEnabled      bool   `long:"app-id" description:"Show app id" required:"false"`
+	AppIdEnabled   bool   `long:"app-id" description:"Show app id" required:"false"`
 	AppNameEnabled bool   `long:"app-name" description:"Show app name" required:"false"`
 	ActionsEnabled bool   `long:"actions" description:"Show start, stop and restart buttons"`
 }

@@ -1,6 +1,6 @@
 const SHOW_ACTIONS = {{.ActionsEnabled}};
 const SHOW_TIME = {{.TimeEnabled}};
-const SHOW_ID = {{.IdEnabled}};
+const SHOW_ID = {{.AppIdEnabled}};
 const SHOW_APP_NAME = {{.AppNameEnabled}};
 
 let host = window.document.location.host.replace(/:.*/, '');
