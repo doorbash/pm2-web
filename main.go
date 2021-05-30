@@ -10,13 +10,18 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-var opts struct {
+type Options struct {
 	Username       string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
 	Password       string `short:"p" long:"password" description:"BasicAuth password" required:"false" default:""`
 	LogBufferSize  int    `short:"l" long:"log-buffer-size" description:"Log buffer size" required:"false" default:"200"`
 	Interval       int    `short:"i" long:"interval" description:"PM2 process-list update interval in seconds" required:"false" default:"10"`
-	ActionsEnabled bool   `long:"actions" description:"Whether to show start, stop and restart buttons or not" required:"false"`
+	TimeEnabled    bool   `long:"time" description:"Show log time" required:"false"`
+	IdEnabled      bool   `long:"app-id" description:"Show app id" required:"false"`
+	AppNameEnabled bool   `long:"app-name" description:"Show app name" required:"false"`
+	ActionsEnabled bool   `long:"actions" description:"Show start, stop and restart buttons"`
 }
+
+var opts Options
 
 type LogData struct {
 	Type string
@@ -67,7 +72,7 @@ func main() {
 	}()
 
 	pm2 := NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize).Run()
-	if err := NewHTTPServer(args[0], opts.Username, opts.Password, opts.ActionsEnabled, pm2).Run(); err != nil {
+	if err := NewHTTPServer(args[0], &opts, pm2).Run(); err != nil {
 		log.Fatalln(err)
 	}
 }

@@ -19,7 +19,10 @@ go build
   -p, --password=        BasicAuth password
   -l, --log-buffer-size= Log buffer size (default: 200)
   -i, --interval=        PM2 process-list update interval in seconds (default: 10)
-      --actions          Whether to show start, stop and restart buttons or not
+      --time             Show log time
+      --app-id           Show app id
+      --app-name         Show app name
+      --actions          Show start, stop and restart buttons
 ```
 
 ## Example
@@ -27,23 +30,23 @@ go build
 ### Run without authentication:
 
 ```
-./pm2-web localhost:3030
+./pm2-web --time --app-name --actions localhost:3030
 ```
 
 **or using PM2:**
 ```
-pm2 start --name pm2-web ./pm2-web -- localhost:3030
+pm2 start --name pm2-web ./pm2-web -- --time --app-name --actions localhost:3030
 ```
 
 ### Run with authentication:
 
 ```
-./pm2-web -u admin -p 1234 localhost:3030
+./pm2-web -u admin -p 1234 --time --app-name --actions localhost:3030
 ```
 
 **or using PM2:**
 ```
-pm2 start --name pm2-web ./pm2-web -- -u admin -p 1234 localhost:3030
+pm2 start --name pm2-web ./pm2-web -- -u admin -p 1234 --time --app-name --actions localhost:3030
 ```
 
 ### Run behind reverse proxy:

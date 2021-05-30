@@ -1,7 +1,7 @@
-const SHOW_ACTIONS = {{.}};
-const SHOW_TIME = true;
-const SHOW_ID = false;
-const SHOW_APP_NAME = true;
+const SHOW_ACTIONS = {{.ActionsEnabled}};
+const SHOW_TIME = {{.TimeEnabled}};
+const SHOW_ID = {{.IdEnabled}};
+const SHOW_APP_NAME = {{.AppNameEnabled}};
 
 let host = window.document.location.host.replace(/:.*/, '');
 let pathname = window.location.pathname

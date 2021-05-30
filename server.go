@@ -16,7 +16,7 @@ type HttpServer struct {
 	upgrader websocket.Upgrader
 }
 
-func NewHTTPServer(addr, username, password string, actionsEnabled bool, pm2 *PM2) *HttpServer {
+func NewHTTPServer(addr string, options *Options, pm2 *PM2) *HttpServer {
 	return (&HttpServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
@@ -24,10 +24,10 @@ func NewHTTPServer(addr, username, password string, actionsEnabled bool, pm2 *PM
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		Addr: addr,
-	}).init(username, password, actionsEnabled, pm2)
+	}).init(options, pm2)
 }
 
-func (s *HttpServer) init(username, password string, actionsEnabled bool, pm2 *PM2) *HttpServer {
+func (s *HttpServer) init(options *Options, pm2 *PM2) *HttpServer {
 	staticHandler := http.FileServer(http.Dir("./static"))
 
 	jsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +37,7 @@ func (s *HttpServer) init(username, password string, actionsEnabled bool, pm2 *P
 			return
 		}
 		w.Header().Add("Content-Type", "text/javascript")
-		err = templ.Execute(w, actionsEnabled)
+		err = templ.Execute(w, options)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -131,19 +131,19 @@ func (s *HttpServer) init(username, password string, actionsEnabled bool, pm2 *P
 		}
 	})
 
-	if username == "" {
+	if options.Username == "" {
 		http.Handle("/", staticHandler)
 		http.Handle("/script.js", jsHandler)
 		http.Handle("/logs", logsHandler)
-		if actionsEnabled {
+		if options.ActionsEnabled {
 			http.Handle("/action", actionHandler)
 		}
 	} else {
-		http.Handle("/", httpauth.SimpleBasicAuth(username, password)(staticHandler))
-		http.Handle("/script.js", httpauth.SimpleBasicAuth(username, password)(jsHandler))
-		http.Handle("/logs", httpauth.SimpleBasicAuth(username, password)(logsHandler))
-		if actionsEnabled {
-			http.Handle("/action", httpauth.SimpleBasicAuth(username, password)(actionHandler))
+		http.Handle("/", httpauth.SimpleBasicAuth(options.Username, options.Password)(staticHandler))
+		http.Handle("/script.js", httpauth.SimpleBasicAuth(options.Username, options.Password)(jsHandler))
+		http.Handle("/logs", httpauth.SimpleBasicAuth(options.Username, options.Password)(logsHandler))
+		if options.ActionsEnabled {
+			http.Handle("/action", httpauth.SimpleBasicAuth(options.Username, options.Password)(actionHandler))
 		}
 	}
 
