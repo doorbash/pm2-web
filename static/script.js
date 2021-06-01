@@ -99,14 +99,14 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].pid + "</td>"
             txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + ";\">" + status + "</td>"
             txt += "<td>" + stats[i].restart + "</td>"
-            txt += "<td>" + uptime_txt + "</td>"
+            txt += "<td>" + (status == "online" ? uptime_txt : "0") + "</td>"
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
             txt += "<td>" + stats[i].user + "</td>"
             if (SHOW_ACTIONS) {
                 txt += "<td>"
                 if (status == "online") {
-                    txt += `<button class="button" onclick="pm2Action('stop',${stats[i].id})">&#9632; stop</button>`
+                    txt += `<button class="button" onclick="pm2Action('stop',${stats[i].id})">&#9724; stop</button>`
                 } else {
                     txt += `<button class="button" onclick="pm2Action('start',${stats[i].id})">&#9654; start</button>`
                 }
