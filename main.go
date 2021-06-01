@@ -32,6 +32,7 @@ type LogData struct {
 var newClientsChan chan chan LogData = make(chan chan LogData, 100)
 var removedClientsChan chan chan LogData = make(chan chan LogData, 100)
 var logsChan chan LogData = make(chan LogData, 100)
+var statsChan chan LogData = make(chan LogData)
 var logBuffer = list.New()
 var stats LogData
 
@@ -64,6 +65,10 @@ func main() {
 				close(client)
 				fmt.Printf("Num connected clients : %d \r\n", len(clients))
 			case data := <-logsChan:
+				for client := range clients {
+					client <- data
+				}
+			case data := <-statsChan:
 				for client := range clients {
 					client <- data
 				}

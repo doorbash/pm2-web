@@ -102,7 +102,7 @@ func getJlist() {
 		oObject[i].(map[string]interface{})["mem"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["memory"]
 	}
 	stats = LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}
-	logsChan <- stats
+	statsChan <- stats
 }
 
 func (p *PM2) jlist() {
