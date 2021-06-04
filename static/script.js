@@ -49,7 +49,7 @@ socket.onmessage = message => {
         let p = document.createElement("p");
         p.setAttribute("class", "log");
         let span = document.createElement("span");
-        span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#800000" + ";"));
+        span.setAttribute("style", "color: " + (log.type == "out" ? "#00bb00" : "#d00000" + ";"));
         if (SHOW_TIME) span.appendChild(document.createTextNode("[" + new Date(log.time).toLocaleString() + "] "));
         if (SHOW_ID) span.appendChild(document.createTextNode(log.id + " "));
         if (SHOW_APP_NAME) span.appendChild(document.createTextNode(log.app + " "));
@@ -98,7 +98,7 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].id + "</td>"
             txt += "<td>" + stats[i].pid + "</td>"
             txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + ";\">" + status + "</td>"
-            txt += "<td>" + stats[i].restart + "</td>"
+            txt += "<td>" + (status == "online" ? stats[i].restart : "0") + "</td>"
             txt += "<td>" + (status == "online" ? uptime_txt : "0") + "</td>"
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
