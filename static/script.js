@@ -98,7 +98,7 @@ socket.onmessage = message => {
             txt += "<td>" + stats[i].id + "</td>"
             txt += "<td>" + stats[i].pid + "</td>"
             txt += "<td style=\"color: " + (status == 'online' ? "#00ff00" : "#ff0000") + ";\">" + status + "</td>"
-            txt += "<td>" + (status == "online" ? stats[i].restart : "0") + "</td>"
+            txt += "<td>" + stats[i].restart + "</td>"
             txt += "<td>" + (status == "online" ? uptime_txt : "0") + "</td>"
             txt += "<td>" + stats[i].cpu + "%</td>"
             txt += "<td>" + (stats[i].mem / (1024 * 1024)).toFixed(1) + " MB</td>"
