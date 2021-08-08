@@ -100,7 +100,6 @@ func (p *PM2) getJlist() {
 	select {
 	case *p.statsChan <- LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}:
 	case <-time.After(3 * time.Second):
-	default:
 	}
 }
 
