@@ -16,18 +16,16 @@ type HttpServer struct {
 	upgrader websocket.Upgrader
 }
 
-func NewHTTPServer(addr string, options *Options, pm2 *PM2) *HttpServer {
-	return (&HttpServer{
+func NewHTTPServer(addr string, options *Options, pm2 *PM2, newClientsChan *chan chan LogData, removedClientsChan *chan chan LogData) *HttpServer {
+	s := &HttpServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		Addr: addr,
-	}).init(options, pm2)
-}
+	}
 
-func (s *HttpServer) init(options *Options, pm2 *PM2) *HttpServer {
 	staticHandler := http.FileServer(http.Dir("./static"))
 
 	jsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,35 +42,20 @@ func (s *HttpServer) init(options *Options, pm2 *PM2) *HttpServer {
 	})
 
 	logsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var client, err = s.upgrader.Upgrade(w, r, nil)
+		conn, err := s.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		if stats.Type != "" {
-			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			if err := client.WriteJSON(stats); err != nil {
-				client.Close()
-				return
-			}
-		}
-		for e := logBuffer.Front(); e != nil; e = e.Next() {
-			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			if err := client.WriteJSON(e.Value); err != nil {
-				client.Close()
-				return
-			}
-		}
 		clientChan := make(chan LogData, 100)
-		fmt.Printf("Client connected : %s \r\n", client.RemoteAddr().String())
-		newClientsChan <- clientChan
+		*newClientsChan <- clientChan
+		fmt.Printf("Client connected : %s \r\n", conn.RemoteAddr().String())
 		for data := range clientChan {
-			client.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			if err := client.WriteJSON(data); err != nil {
-				client.Close()
-				fmt.Printf("Client disconnected : %s \r\n", client.RemoteAddr().String())
-				removedClientsChan <- clientChan
-				return
+			conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+			if err := conn.WriteJSON(data); err != nil {
+				conn.Close()
+				*removedClientsChan <- clientChan
+				fmt.Printf("Client disconnected : %s \r\n", conn.RemoteAddr().String())
 			}
 		}
 	})
@@ -93,7 +76,7 @@ func (s *HttpServer) init(options *Options, pm2 *PM2) *HttpServer {
 				w.Write([]byte("Url Param 'id' is missing"))
 				return
 			}
-			err := pm2.Start(ids[0])
+			err := pm2.StartProcess(ids[0])
 			if err != nil {
 				w.Write([]byte(fmt.Sprintf("error: %s\n", err.Error())))
 			} else {
@@ -106,7 +89,7 @@ func (s *HttpServer) init(options *Options, pm2 *PM2) *HttpServer {
 				w.Write([]byte("Url Param 'id' is missing"))
 				return
 			}
-			err := pm2.Stop(ids[0])
+			err := pm2.StopProcess(ids[0])
 			if err != nil {
 				w.Write([]byte(fmt.Sprintf("error: %s\n", err.Error())))
 			} else {
@@ -119,7 +102,7 @@ func (s *HttpServer) init(options *Options, pm2 *PM2) *HttpServer {
 				w.Write([]byte("Url Param 'id' is missing"))
 				return
 			}
-			err := pm2.Restart(ids[0])
+			err := pm2.RestartProcess(ids[0])
 			if err != nil {
 				w.Write([]byte(fmt.Sprintf("error: %s\n", err.Error())))
 			} else {

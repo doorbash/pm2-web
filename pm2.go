@@ -11,18 +11,20 @@ import (
 )
 
 type PM2 struct {
-	Interval      time.Duration
-	LogBufferSize int
+	Interval  time.Duration
+	statsChan *chan LogData
+	logsChan  *chan LogData
 }
 
-func NewPM2(interval time.Duration, logBufferSize int) *PM2 {
+func NewPM2(interval time.Duration, logBufferSize int, statsChan *chan LogData, logsChan *chan LogData) *PM2 {
 	return &PM2{
-		Interval:      interval,
-		LogBufferSize: logBufferSize,
+		Interval:  interval,
+		statsChan: statsChan,
+		logsChan:  logsChan,
 	}
 }
 
-func (p *PM2) Run() *PM2 {
+func (p *PM2) Start() *PM2 {
 	go p.logs()
 	go p.jlist()
 	return p
@@ -42,7 +44,6 @@ func (p *PM2) logs() {
 		}
 		for scanner.Scan() {
 			data := scanner.Text()
-			// fmt.Printf("data=%s\n", data) // timestamp app id type message
 			if !strings.HasPrefix(data, "timestamp=") {
 				continue
 			}
@@ -69,17 +70,12 @@ func (p *PM2) logs() {
 			jM["type"] = data[idx3+6 : idx4]
 			jM["message"] = data[idx4+9:]
 			logData := LogData{Type: "log", Data: jM, Time: time.Now().UnixNano() / 1e6}
-			for logBuffer.Len() >= p.LogBufferSize {
-				e := logBuffer.Front()
-				logBuffer.Remove(e)
-			}
-			logBuffer.PushBack(logData)
-			logsChan <- logData
+			*p.logsChan <- logData
 		}
 	}
 }
 
-func getJlist() {
+func (p *PM2) getJlist() {
 	cmd := exec.Command("pm2", "jlist")
 	data, err := cmd.Output()
 	// fmt.Println(string(data))
@@ -101,40 +97,43 @@ func getJlist() {
 		oObject[i].(map[string]interface{})["cpu"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["cpu"]
 		oObject[i].(map[string]interface{})["mem"] = sObject[i].(map[string]interface{})["monit"].(map[string]interface{})["memory"]
 	}
-	stats = LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}
-	statsChan <- stats
+	select {
+	case *p.statsChan <- LogData{Type: "stats", Data: oObject, Time: time.Now().UnixNano() / 1e6}:
+	case <-time.After(3 * time.Second):
+	default:
+	}
 }
 
 func (p *PM2) jlist() {
 	for {
-		getJlist()
+		p.getJlist()
 		time.Sleep(p.Interval)
 	}
 }
 
-func (p *PM2) Start(id string) error {
+func (p *PM2) StartProcess(id string) error {
 	cmd := exec.Command("pm2", "start", id)
 	_, err := cmd.Output()
 	if err == nil {
-		go getJlist()
+		go p.getJlist()
 	}
 	return err
 }
 
-func (p *PM2) Stop(id string) error {
+func (p *PM2) StopProcess(id string) error {
 	cmd := exec.Command("pm2", "stop", id)
 	_, err := cmd.Output()
 	if err == nil {
-		go getJlist()
+		go p.getJlist()
 	}
 	return err
 }
 
-func (p *PM2) Restart(id string) error {
+func (p *PM2) RestartProcess(id string) error {
 	cmd := exec.Command("pm2", "restart", id)
 	_, err := cmd.Output()
 	if err == nil {
-		go getJlist()
+		go p.getJlist()
 	}
 	return err
 }
