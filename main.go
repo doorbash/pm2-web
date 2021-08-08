@@ -66,7 +66,6 @@ func main() {
 			select {
 			case client := <-newClientsChan:
 				clients[client] = true
-				fmt.Printf("Num connected clients : %d \r\n", len(clients))
 				if stats.Type != "" {
 					select {
 					case client <- stats:
@@ -79,6 +78,7 @@ func main() {
 					default:
 					}
 				}
+				fmt.Printf("Num connected clients : %d \r\n", len(clients))
 			case client := <-removedClientsChan:
 				delete(clients, client)
 				close(client)
