@@ -16,7 +16,7 @@ type PM2 struct {
 	logsChan  *chan LogData
 }
 
-func NewPM2(interval time.Duration, logBufferSize int, statsChan *chan LogData, logsChan *chan LogData) *PM2 {
+func NewPM2(interval time.Duration, statsChan *chan LogData, logsChan *chan LogData) *PM2 {
 	return &PM2{
 		Interval:  interval,
 		statsChan: statsChan,

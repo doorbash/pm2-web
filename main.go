@@ -105,7 +105,7 @@ func main() {
 		}
 	}()
 
-	pm2 := NewPM2(time.Duration(opts.Interval)*time.Second, opts.LogBufferSize, &statsChan, &logsChan).Start()
+	pm2 := NewPM2(time.Duration(opts.Interval)*time.Second, &statsChan, &logsChan).Start()
 
 	if err := NewHTTPServer(args[0], &opts, pm2, &newClientsChan, &removedClientsChan).Run(); err != nil {
 		log.Fatalln(err)
