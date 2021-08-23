@@ -10,6 +10,8 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
+type Client = chan chan LogData
+
 type Options struct {
 	Username       string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
 	Password       string `short:"p" long:"password" description:"BasicAuth password" required:"false" default:""`
@@ -33,8 +35,8 @@ func (o *Options) Valid() bool {
 
 var opts Options
 
-var newClientsChan chan chan LogData = make(chan chan LogData, 100)
-var removedClientsChan chan chan LogData = make(chan chan LogData, 100)
+var newClientsChan Client = make(Client, 100)
+var removedClientsChan Client = make(Client, 100)
 var logsChan chan LogData = make(chan LogData, 100)
 var statsChan chan LogData = make(chan LogData)
 var logBuffer *list.List = list.New()
@@ -107,7 +109,7 @@ func main() {
 
 	pm2 := NewPM2(time.Duration(opts.Interval)*time.Second, &statsChan, &logsChan).Start()
 
-	if err := NewHTTPServer(args[0], &opts, pm2, &newClientsChan, &removedClientsChan).Run(); err != nil {
+	if err := NewHTTPServer(args[0], &opts, pm2, &newClientsChan, &removedClientsChan).ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
 }
