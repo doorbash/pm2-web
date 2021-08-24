@@ -23,7 +23,8 @@ type HttpServer struct {
 func (h *HttpServer) JsHandler(w http.ResponseWriter, r *http.Request) {
 	templ, err := template.ParseFiles("./static/script.js")
 	if err != nil {
-		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
 		return
 	}
 	w.Header().Add("Content-Type", "text/javascript")
@@ -37,6 +38,8 @@ func (h *HttpServer) LogsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := h.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 	clientChan := make(chan LogData, 100)
@@ -53,29 +56,34 @@ func (h *HttpServer) LogsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpServer) ActionsHandler(w http.ResponseWriter, r *http.Request) {
-	ops, ok := r.URL.Query()["op"]
-	if !ok || len(ops[0]) < 1 {
+	q := r.URL.Query()
+	op := q.Get("op")
+	id := q.Get("id")
+
+	if op == "" {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Url Param 'op' is missing"))
 		return
 	}
 
-	ids, ok := r.URL.Query()["id"]
-	if !ok || len(ids[0]) < 1 {
+	if id == "" {
 		w.Write([]byte("Url Param 'id' is missing"))
 		return
 	}
 
 	var err error
-	switch op := string(ops[0]); op {
+	switch op {
 	case "start", "stop", "restart":
-		err = h.pm2.Action(ids[0], op)
+		err = h.pm2.Action(id, op)
 	default:
 		err = errors.New("bad op")
 	}
 
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("error: %s\n", err.Error())))
 	} else {
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	}
 }
