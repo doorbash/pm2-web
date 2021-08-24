@@ -67,6 +67,7 @@ func (h *HttpServer) ActionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Url Param 'id' is missing"))
 		return
 	}
@@ -84,7 +85,7 @@ func (h *HttpServer) ActionsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprintf("error: %s\n", err.Error())))
 	} else {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		w.Write([]byte(http.StatusText(http.StatusOK)))
 	}
 }
 
