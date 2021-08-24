@@ -10,7 +10,7 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-type Client = chan chan LogData
+type Clients = chan chan LogData
 
 type Options struct {
 	Username       string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
@@ -35,8 +35,8 @@ func (o *Options) Valid() bool {
 
 var opts Options
 
-var newClientsChan Client = make(Client, 100)
-var removedClientsChan Client = make(Client, 100)
+var newClientsChan Clients = make(Clients, 100)
+var removedClientsChan Clients = make(Clients, 100)
 var logsChan chan LogData = make(chan LogData, 100)
 var statsChan chan LogData = make(chan LogData)
 var logBuffer *list.List = list.New()
