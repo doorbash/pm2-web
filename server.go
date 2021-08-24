@@ -15,8 +15,8 @@ type HttpServer struct {
 	Addr           string
 	upgrader       websocket.Upgrader
 	options        *Options
-	newClients     *chan chan LogData
-	removedClients *chan chan LogData
+	newClients     *Client
+	removedClients *Client
 	pm2            *PM2
 }
 
