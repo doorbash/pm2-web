@@ -15,8 +15,8 @@ type HttpServer struct {
 	Addr           string
 	upgrader       websocket.Upgrader
 	options        *Options
-	newClients     *Clients
-	removedClients *Clients
+	newClients     *chan chan LogData
+	removedClients *chan chan LogData
 	pm2            *PM2
 }
 
@@ -97,7 +97,13 @@ func (h *HttpServer) middleware(f http.HandlerFunc) http.Handler {
 	}
 }
 
-func NewHTTPServer(addr string, options *Options, pm2 *PM2, newClients, removedClients *Clients) *HttpServer {
+func NewHTTPServer(
+	addr string,
+	options *Options,
+	pm2 *PM2,
+	newClients,
+	removedClients *chan chan LogData,
+) *HttpServer {
 	h := &HttpServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,

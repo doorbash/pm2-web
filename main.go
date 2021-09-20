@@ -10,8 +10,6 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-type Clients = chan chan LogData
-
 type Options struct {
 	Username       string `short:"u" long:"username" description:"BasicAuth username" required:"false" default:""`
 	Password       string `short:"p" long:"password" description:"BasicAuth password" required:"false" default:""`
@@ -33,14 +31,15 @@ func (o *Options) Valid() bool {
 	return true
 }
 
-var opts Options
-
-var newClientsChan Clients = make(Clients, 100)
-var removedClientsChan Clients = make(Clients, 100)
-var logsChan chan LogData = make(chan LogData, 100)
-var statsChan chan LogData = make(chan LogData)
-var logBuffer *list.List = list.New()
-var stats LogData
+var (
+	opts               Options
+	newClientsChan     chan chan LogData = make(chan chan LogData, 100)
+	removedClientsChan chan chan LogData = make(chan chan LogData, 100)
+	logsChan           chan LogData      = make(chan LogData, 100)
+	statsChan          chan LogData      = make(chan LogData)
+	logBuffer          *list.List        = list.New()
+	stats              LogData
+)
 
 func main() {
 	parser := flags.NewParser(&opts, flags.Default)
