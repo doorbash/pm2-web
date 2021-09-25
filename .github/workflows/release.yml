@@ -2,8 +2,8 @@ name: release
 
 on:
   release:
-    types:
-      - created
+    types: [created]
+
 jobs:
   generate:
     name: Generate cross-platform builds
